@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Your Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #F5C518;
+    --black: #080808;
+    --card: #161616;
+    --border: #252525;
+    --text: #E6E6E6;
+    --muted: #7A7A7A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:3rem 2.5rem; max-width:420px; width:100%; text-align:center; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:2rem; display:block; }
+  .logo em { color:var(--gold); font-style:normal; }
+  .biz-name { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:0.5rem; }
+  .question { font-size:1rem; color:var(--muted); margin-bottom:2.5rem; line-height:1.6; }
+  .stars { display:flex; gap:0.75rem; justify-content:center; margin-bottom:2rem; }
+  .star {
+    font-size:3rem; cursor:pointer;
+    transition:transform 0.15s, filter 0.15s;
+    filter:grayscale(1) opacity(0.4);
+    user-select:none;
+  }
+  .star:hover, .star.active { filter:grayscale(0) opacity(1); transform:scale(1.2); }
+  .star-row:hover .star { filter:grayscale(0) opacity(1); }
+  .star-row .star:hover ~ .star { filter:grayscale(1) opacity(0.4); transform:scale(1); }
+  .rating-label { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--gold); min-height:1.5rem; margin-bottom:2rem; transition:all 0.2s; }
+  .btn-submit {
+    background:var(--gold); color:#000; border:none;
+    padding:1rem 2.5rem; border-radius:10px;
+    font-weight:700; font-size:1rem; cursor:pointer;
+    width:100%; transition:all 0.2s;
+    font-family:'DM Sans',sans-serif;
+    opacity:0.4; pointer-events:none;
+  }
+  .btn-submit.ready { opacity:1; pointer-events:all; }
+  .btn-submit.ready:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(245,197,24,0.25); }
+  .powered { font-size:0.72rem; color:var(--muted); margin-top:1.5rem; }
+  .powered a { color:var(--gold); text-decoration:none; }
+  .loading { display:none; flex-direction:column; align-items:center; gap:1rem; }
+  .spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <a href="/" class="logo">Auto<em>reach</em></a>
+  <div class="biz-name" id="bizName">Loading...</div>
+  <p class="question">How was your experience today?<br>Tap a star to rate us.</p>
+
+  <div class="stars star-row" id="starRow">
+    <span class="star" data-rating="1">⭐</span>
+    <span class="star" data-rating="2">⭐</span>
+    <span class="star" data-rating="3">⭐</span>
+    <span class="star" data-rating="4">⭐</span>
+    <span class="star" data-rating="5">⭐</span>
+  </div>
+
+  <div class="rating-label" id="ratingLabel"></div>
+
+  <button class="btn-submit" id="submitBtn" onclick="submitRating()">
+    Submit Rating
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="color:var(--muted);font-size:0.9rem;">Redirecting you...</p>
+  </div>
+
+  <p class="powered">Powered by <a href="/">Autoreach</a></p>
+</div>
+
+<script>
+  const labels = ['', 'Poor 😕', 'Not Great 😐', 'Okay 🙂', 'Good 😊', 'Amazing! 🤩'];
+  let selectedRating = 0;
+  const businessId = new URLSearchParams(window.location.search).get('b');
+
+  // Load business name
+  if (businessId) {
+    fetch(`/api/dashboard/business/${businessId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.business) {
+          document.getElementById('bizName').textContent = data.business.name;
+        }
+      })
+      .catch(() => {
+        document.getElementById('bizName').textContent = 'Rate Your Experience';
+      });
+  } else {
+    document.getElementById('bizName').textContent = 'Rate Your Experience';
+  }
+
+  // Star hover & click logic
+  const stars = document.querySelectorAll('.star');
+  stars.forEach(star => {
+    star.addEventListener('mouseover', () => {
+      const r = parseInt(star.dataset.rating);
+      highlightStars(r);
+      document.getElementById('ratingLabel').textContent = labels[r];
+    });
+
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.rating);
+      highlightStars(selectedRating);
+      document.getElementById('ratingLabel').textContent = labels[selectedRating];
+      document.getElementById('submitBtn').classList.add('ready');
+    });
+  });
+
+  document.getElementById('starRow').addEventListener('mouseleave', () => {
+    if (selectedRating > 0) {
+      highlightStars(selectedRating);
+      document.getElementById('ratingLabel').textContent = labels[selectedRating];
+    } else {
+      stars.forEach(s => s.classList.remove('active'));
+      document.getElementById('ratingLabel').textContent = '';
+    }
+  });
+
+  function highlightStars(rating) {
+    stars.forEach(s => {
+      if (parseInt(s.dataset.rating) <= rating) {
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
+    });
+  }
+
+  async function submitRating() {
+    if (!selectedRating) return;
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('loading').style.display = 'flex';
+
+    try {
+      const res = await fetch('/api/reviews/rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_id: businessId, rating: selectedRating })
+      });
+      const data = await res.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+      }
+    } catch (err) {
+      window.location.href = '/feedback?business_id=' + businessId;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Your Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #F5C518;
+    --black: #080808;
+    --card: #161616;
+    --card2: #1C1C1C;
+    --border: #252525;
+    --border2: #2E2E2E;
+    --text: #E6E6E6;
+    --muted: #7A7A7A;
+    --green: #22C55E;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:3rem 2.5rem; max-width:460px; width:100%; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:2rem; display:block; text-align:center; text-decoration:none; }
+  .logo em { color:var(--gold); font-style:normal; }
+  .head { text-align:center; margin-bottom:2rem; }
+  .head h1 { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:0.5rem; }
+  .head p { font-size:0.9rem; color:var(--muted); line-height:1.65; }
+  .form-group { margin-bottom:1.2rem; }
+  label { display:block; font-size:0.8rem; font-weight:600; color:var(--muted); margin-bottom:0.45rem; letter-spacing:0.02em; }
+  input, textarea, select {
+    background:var(--card2); border:1px solid var(--border2);
+    color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.9rem; border-radius:8px; padding:0.75rem 1rem;
+    width:100%; transition:border-color 0.2s; outline:none;
+  }
+  input:focus, textarea:focus { border-color:var(--gold); }
+  input::placeholder, textarea::placeholder { color:#3A3A3A; }
+  textarea { resize:vertical; min-height:120px; }
+  .stars-select { display:flex; gap:0.5rem; margin-top:0.3rem; }
+  .ss { font-size:1.8rem; cursor:pointer; filter:grayscale(1) opacity(0.4); transition:all 0.15s; user-select:none; }
+  .ss.on { filter:grayscale(0) opacity(1); }
+  .btn-submit { background:var(--gold); color:#000; border:none; padding:1rem; border-radius:10px; font-weight:700; font-size:1rem; cursor:pointer; width:100%; transition:all 0.2s; font-family:'DM Sans',sans-serif; margin-top:0.5rem; }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(245,197,24,0.25); }
+  .success { display:none; text-align:center; padding:2rem 0; }
+  .success .check { font-size:3.5rem; margin-bottom:1rem; }
+  .success h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; margin-bottom:0.5rem; }
+  .success p { color:var(--muted); font-size:0.9rem; line-height:1.65; }
+  .powered { font-size:0.72rem; color:var(--muted); text-align:center; margin-top:1.5rem; }
+  .powered a { color:var(--gold); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <a href="/" class="logo">Auto<em>reach</em></a>
+
+  <div id="formWrap">
+    <div class="head">
+      <h1>We're sorry to hear that 😔</h1>
+      <p>Your feedback helps us improve. Please tell us what went wrong — this stays completely private.</p>
+    </div>
+
+    <div class="form-group">
+      <label>HOW MANY STARS WOULD YOU GIVE?</label>
+      <div class="stars-select" id="starsSelect">
+        <span class="ss" data-r="1">⭐</span>
+        <span class="ss" data-r="2">⭐</span>
+        <span class="ss" data-r="3">⭐</span>
+        <span class="ss" data-r="4">⭐</span>
+        <span class="ss" data-r="5">⭐</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>WHAT WENT WRONG? (REQUIRED)</label>
+      <textarea id="message" placeholder="Tell us what happened so we can make it right..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>YOUR NAME (OPTIONAL)</label>
+      <input type="text" id="custName" placeholder="First name is fine">
+    </div>
+
+    <div class="form-group">
+      <label>YOUR EMAIL (OPTIONAL — SO WE CAN FOLLOW UP)</label>
+      <input type="email" id="custEmail" placeholder="your@email.com">
+    </div>
+
+    <button class="btn-submit" onclick="submitFeedback()">Send Feedback</button>
+  </div>
+
+  <div class="success" id="successMsg">
+    <div class="check">🙏</div>
+    <h2>Thank you for telling us</h2>
+    <p>We take every piece of feedback seriously. The owner has been notified and will work to make this right.</p>
+  </div>
+
+  <p class="powered">Powered by <a href="/">Autoreach</a></p>
+</div>
+
+<script>
+  let selectedRating = 0;
+  const businessId = new URLSearchParams(window.location.search).get('business_id');
+  const stars = document.querySelectorAll('.ss');
+
+  stars.forEach(s => {
+    s.addEventListener('click', () => {
+      selectedRating = parseInt(s.dataset.r);
+      stars.forEach(x => {
+        x.classList.toggle('on', parseInt(x.dataset.r) <= selectedRating);
+      });
+    });
+  });
+
+  async function submitFeedback() {
+    const message = document.getElementById('message').value.trim();
+    if (!message) {
+      document.getElementById('message').style.borderColor = '#EF4444';
+      return;
+    }
+
+    try {
+      await fetch('/api/feedback/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: businessId,
+          rating: selectedRating || 2,
+          message,
+          customer_name: document.getElementById('custName').value,
+          customer_email: document.getElementById('custEmail').value
+        })
+      });
+
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+    }
+  }
+</script>
+</body>
+</html>

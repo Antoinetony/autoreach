@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Autoreach</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --gold: #F5C518;
+    --black: #080808;
+    --charcoal: #111;
+    --card: #161616;
+    --card2: #1C1C1C;
+    --border: #252525;
+    --border2: #2E2E2E;
+    --text: #E6E6E6;
+    --muted: #7A7A7A;
+    --green: #22C55E;
+    --red: #EF4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--text); font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; }
+  .sidebar { width:220px; background:var(--charcoal); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:1.5rem 1rem; position:fixed; top:0; left:0; height:100vh; z-index:50; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; text-decoration:none; padding:0 0.5rem; margin-bottom:2rem; display:block; }
+  .logo em { color:var(--gold); font-style:normal; }
+  .nav-item { display:flex; align-items:center; gap:0.7rem; padding:0.65rem 0.8rem; border-radius:8px; font-size:0.83rem; color:var(--muted); cursor:pointer; transition:all 0.2s; margin-bottom:0.2rem; text-decoration:none; }
+  .nav-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+  .nav-item.active { background:rgba(245,197,24,0.1); color:var(--gold); }
+  .nav-icon { font-size:1rem; flex-shrink:0; }
+  .sidebar-bottom { margin-top:auto; }
+  .biz-badge { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:0.9rem; }
+  .biz-badge-name { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; margin-bottom:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .biz-badge-plan { font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:0.08em; }
+  .main { margin-left:220px; flex:1; padding:2rem 2.5rem; overflow-x:hidden; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+  .topbar h1 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; }
+  .topbar-right { display:flex; gap:0.8rem; align-items:center; }
+  .notif-btn { background:var(--card); border:1px solid var(--border); color:var(--text); padding:0.55rem 0.9rem; border-radius:8px; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:0.4rem; transition:all 0.2s; }
+  .notif-btn:hover { border-color:var(--gold); }
+  .btn-gold { background:var(--gold); color:#000; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-size:0.83rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+  .btn-gold:hover { opacity:0.9; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.2rem 1.4rem; }
+  .kpi-label { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.09em; margin-bottom:0.5rem; }
+  .kpi-value { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; line-height:1; }
+  .kpi-value.gold { color:var(--gold); }
+  .kpi-value.green { color:#4ADE80; }
+  .kpi-value.red { color:#F87171; }
+  .kpi-sub { font-size:0.72rem; color:var(--muted); margin-top:0.4rem; }
+  .grid2 { display:grid; grid-template-columns:2fr 1fr; gap:1.2rem; margin-bottom:1.2rem; }
+  .grid2b { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-bottom:1.2rem; }
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.4rem; }
+  .panel-title { font-family:'Syne',sans-serif; font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.09em; margin-bottom:1.2rem; display:flex; justify-content:space-between; align-items:center; }
+  .chart-bars { display:flex; align-items:flex-end; gap:6px; height:120px; }
+  .c-bar { flex:1; border-radius:4px 4px 0 0; background:rgba(245,197,24,0.2); min-height:4px; }
+  .c-bar.hi { background:var(--gold); }
+  .chart-labels { display:flex; gap:6px; margin-top:0.5rem; }
+  .c-lbl { flex:1; font-size:0.6rem; color:var(--muted); text-align:center; }
+  .ms-list { display:flex; flex-direction:column; gap:0.7rem; }
+  .ms-item { display:flex; align-items:center; gap:0.8rem; padding:0.7rem; background:var(--card2); border-radius:8px; border:1px solid var(--border); }
+  .ms-icon { font-size:1.2rem; flex-shrink:0; }
+  .ms-text { font-size:0.83rem; font-weight:600; flex:1; }
+  .ms-status { font-size:0.7rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:100px; }
+  .ms-done { background:rgba(74,222,128,0.1); color:#4ADE80; }
+  .ms-pending { background:rgba(255,255,255,0.05); color:var(--muted); }
+  .qr-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  #qrcode { background:#fff; padding:12px; border-radius:12px; display:inline-block; }
+  .qr-url { font-size:0.72rem; color:var(--muted); word-break:break-all; text-align:center; }
+  .btn-print { background:transparent; border:1px solid var(--border2); color:var(--text); padding:0.6rem 1.2rem; border-radius:8px; font-size:0.82rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; width:100%; margin-top:0.3rem; }
+  .btn-print:hover { border-color:var(--gold); color:var(--gold); }
+  .feedback-list { display:flex; flex-direction:column; gap:0.8rem; }
+  .fb-item { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:1rem; }
+  .fb-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+  .fb-stars { color:var(--gold); font-size:0.85rem; }
+  .fb-date { font-size:0.7rem; color:var(--muted); }
+  .fb-msg { font-size:0.85rem; line-height:1.6; }
+  .fb-name { font-size:0.75rem; color:var(--muted); margin-top:0.4rem; }
+  .empty { text-align:center; color:var(--muted); font-size:0.87rem; padding:2rem 0; }
+  .login-overlay { position:fixed; inset:0; background:rgba(8,8,8,0.97); display:flex; align-items:center; justify-content:center; z-index:200; padding:1.5rem; }
+  .login-card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:2.5rem; max-width:380px; width:100%; }
+  .login-card h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; margin-bottom:0.5rem; }
+  .login-card p { color:var(--muted); font-size:0.87rem; margin-bottom:1.5rem; }
+  .form-group { margin-bottom:1rem; }
+  label { display:block; font-size:0.78rem; font-weight:600; color:var(--muted); margin-bottom:0.4rem; }
+  input { background:var(--card2); border:1px solid var(--border2); color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem; border-radius:8px; padding:0.75rem 1rem; width:100%; outline:none; transition:border-color 0.2s; }
+  input:focus { border-color:var(--gold); }
+  input::placeholder { color:#3A3A3A; }
+  .btn-login { background:var(--gold); color:#000; border:none; padding:1rem; border-radius:10px; font-weight:700; font-size:1rem; cursor:pointer; width:100%; font-family:'DM Sans',sans-serif; margin-top:0.5rem; transition:all 0.2s; }
+  .btn-login:hover { opacity:0.9; }
+  .login-link { text-align:center; font-size:0.82rem; color:var(--muted); margin-top:1rem; }
+  .login-link a { color:var(--gold); text-decoration:none; }
+  .err { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#F87171; padding:0.7rem 1rem; border-radius:8px; font-size:0.83rem; margin-bottom:1rem; display:none; }
+  .toast { position:fixed; bottom:2rem; right:2rem; background:var(--card); border:1px solid var(--gold); border-radius:12px; padding:1rem 1.4rem; max-width:320px; z-index:300; transform:translateY(100px); opacity:0; transition:all 0.4s ease; display:flex; gap:0.8rem; align-items:flex-start; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast-icon { font-size:1.3rem; flex-shrink:0; }
+  .toast-title { font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700; margin-bottom:0.2rem; }
+  .toast-msg { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+  @media(max-width:900px){
+    .sidebar{display:none;} .main{margin-left:0; padding:1.2rem;}
+    .kpi-grid{grid-template-columns:1fr 1fr;}
+    .grid2{grid-template-columns:1fr;} .grid2b{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <a href="/" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;text-decoration:none;display:block;margin-bottom:1.5rem;">Auto<em style="color:var(--gold);font-style:normal;">reach</em></a>
+    <h2>Welcome back</h2>
+    <p>Sign in to your dashboard</p>
+    <div id="loginErr" class="err"></div>
+    <div class="form-group">
+      <label>EMAIL</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" id="loginPassword" placeholder="Your password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <p class="login-link">No account? <a href="/signup">Sign up free</a></p>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a href="/" class="logo">Auto<em>reach</em></a>
+  <a class="nav-item active" onclick="showSection('overview',event)"><span class="nav-icon">📊</span> Overview</a>
+  <a class="nav-item" onclick="showSection('qr',event)"><span class="nav-icon">📷</span> QR Code</a>
+  <a class="nav-item" onclick="showSection('feedback',event)"><span class="nav-icon">💬</span> Feedback</a>
+  <a class="nav-item" onclick="showSection('milestones',event)"><span class="nav-icon">🏆</span> Milestones</a>
+  <a class="nav-item" onclick="showSection('settings',event)"><span class="nav-icon">⚙️</span> Settings</a>
+  <div class="sidebar-bottom">
+    <div class="biz-badge">
+      <div class="biz-badge-name" id="sidebarBizName">Loading...</div>
+      <div class="biz-badge-plan" id="sidebarPlan">Free Plan</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">Overview</h1>
+    <div class="topbar-right">
+      <button class="notif-btn" onclick="checkMilestones()">🔔 Notifications</button>
+      <button class="btn-gold" onclick="showSection('qr',event)">📷 Get QR Code</button>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="section-overview">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total Scans</div><div class="kpi-value" id="kpiScans">—</div><div class="kpi-sub">All time</div></div>
+      <div class="kpi"><div class="kpi-label">5-Star Routes</div><div class="kpi-value green" id="kpiPositive">—</div><div class="kpi-sub">Sent to Google</div></div>
+      <div class="kpi"><div class="kpi-label">Private Feedback</div><div class="kpi-value red" id="kpiNegative">—</div><div class="kpi-sub">Kept off Google</div></div>
+      <div class="kpi"><div class="kpi-label">Avg Rating</div><div class="kpi-value gold" id="kpiAvg">—</div><div class="kpi-sub">From all scans</div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title">Reviews This Month <span style="font-size:0.7rem;color:var(--muted);">Last 30 days</span></div>
+        <div class="chart-bars" id="chartBars"></div>
+        <div class="chart-labels" id="chartLabels"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Milestones</div>
+        <div class="ms-list" id="overviewMilestones"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Recent Private Feedback</div>
+      <div class="feedback-list" id="overviewFeedback"></div>
+    </div>
+  </div>
+
+  <!-- QR CODE -->
+  <div id="section-qr" style="display:none">
+    <div class="grid2b">
+      <div class="panel">
+        <div class="panel-title">Your QR Code</div>
+        <div class="qr-wrap">
+          <div id="qrcode"></div>
+          <p class="qr-url" id="qrUrl"></p>
+          <button class="btn-print" onclick="printQR()">🖨️ Print QR Code</button>
+          <button class="btn-print" onclick="downloadQR()">⬇️ Download PNG</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">How To Use It</div>
+        <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:0.5rem;">
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;"><span style="font-size:1.4rem;">🖨️</span><div><div style="font-weight:600;font-size:0.87rem;margin-bottom:0.2rem;">Print & Display</div><div style="font-size:0.8rem;color:var(--muted);line-height:1.6;">Put it on your mirror, counter, or reception desk where customers can easily scan it after their service.</div></div></div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;"><span style="font-size:1.4rem;">📱</span><div><div style="font-weight:600;font-size:0.87rem;margin-bottom:0.2rem;">Customer Scans</div><div style="font-size:0.8rem;color:var(--muted);line-height:1.6;">They point their phone camera at it. No app needed — works instantly in any browser on any phone.</div></div></div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;"><span style="font-size:1.4rem;">⭐</span><div><div style="font-weight:600;font-size:0.87rem;margin-bottom:0.2rem;">Smart Routing</div><div style="font-size:0.8rem;color:var(--muted);line-height:1.6;">4-5 stars go straight to your Google review page. 1-3 stars go to your private feedback form only you can see.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div id="section-feedback" style="display:none">
+    <div class="panel">
+      <div class="panel-title">Private Feedback <span style="font-size:0.72rem;color:var(--muted);">Only you can see this</span></div>
+      <div class="feedback-list" id="feedbackList"></div>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div id="section-milestones" style="display:none">
+    <div class="panel">
+      <div class="panel-title">Your Milestones 🏆</div>
+      <div class="ms-list" id="milestonesList"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="section-settings" style="display:none">
+    <div class="panel" style="max-width:500px;">
+      <div class="panel-title">Business Settings</div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label>BUSINESS NAME</label>
+        <input type="text" id="settingsBizName" placeholder="Your business name">
+      </div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label>GOOGLE REVIEW LINK</label>
+        <input type="url" id="settingsGoogleUrl" placeholder="https://g.page/r/...">
+      </div>
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label>PHONE NUMBER</label>
+        <input type="tel" id="settingsPhone" placeholder="+1 (555) 000-0000">
+      </div>
+      <button class="btn-gold" onclick="saveSettings()" style="width:100%;padding:0.9rem;border-radius:8px;font-size:0.9rem;">Save Changes</button>
+      <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+        <button onclick="doLogout()" style="background:transparent;border:1px solid var(--border2);color:var(--muted);padding:0.7rem 1.2rem;border-radius:8px;font-size:0.83rem;cursor:pointer;font-family:'DM Sans',sans-serif;">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon">🎉</div>
+  <div>
+    <div class="toast-title" id="toastTitle">Milestone reached!</div>
+    <div class="toast-msg" id="toastMsg">You've hit a new milestone.</div>
+  </div>
+</div>
+
+<script>
+  let businessId = null;
+  let businessData = null;
+
+  window.addEventListener('load', () => {
+    const token = localStorage.getItem('ar_token');
+    const biz = localStorage.getItem('ar_business');
+    if (token && biz) {
+      businessData = JSON.parse(biz);
+      businessId = businessData.id;
+      document.getElementById('loginOverlay').style.display = 'none';
+      initDashboard();
+    }
+    const urlBiz = new URLSearchParams(window.location.search).get('b');
+    if (urlBiz) {
+      businessId = urlBiz;
+      document.getElementById('loginOverlay').style.display = 'none';
+      loadStats();
+    }
+  });
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginErr');
+    errEl.style.display = 'none';
+    try {
+      const res = await fetch('/api/auth/login', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.error) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+      localStorage.setItem('ar_token', data.token);
+      localStorage.setItem('ar_business', JSON.stringify(data.business));
+      businessData = data.business;
+      businessId = data.business.id;
+      document.getElementById('loginOverlay').style.display = 'none';
+      initDashboard();
+    } catch(err) {
+      errEl.textContent = 'Login failed. Please try again.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function doLogout() {
+    localStorage.removeItem('ar_token');
+    localStorage.removeItem('ar_business');
+    window.location.reload();
+  }
+
+  function initDashboard() {
+    if (businessData) {
+      document.getElementById('sidebarBizName').textContent = businessData.name || 'My Business';
+      document.getElementById('settingsBizName').value = businessData.name || '';
+      document.getElementById('settingsGoogleUrl').value = businessData.google_review_url || '';
+      document.getElementById('settingsPhone').value = businessData.phone || '';
+      document.getElementById('sidebarPlan').textContent = (businessData.plan || 'free').charAt(0).toUpperCase() + (businessData.plan || 'free').slice(1) + ' Plan';
+    }
+    loadStats();
+    generateQR();
+  }
+
+  async function loadStats() {
+    if (!businessId) return;
+    try {
+      const res = await fetch(`/api/dashboard/stats/${businessId}`);
+      const data = await res.json();
+      document.getElementById('kpiScans').textContent = data.totalScans || 0;
+      document.getElementById('kpiPositive').textContent = data.positiveReviews || 0;
+      document.getElementById('kpiNegative').textContent = data.negativeReviews || 0;
+      document.getElementById('kpiAvg').textContent = data.avgRating || '0.0';
+      renderChart(data.totalScans || 0);
+      renderMilestones(data.positiveReviews || 0);
+      renderFeedback(data.recentFeedback || []);
+    } catch(err) {
+      console.error('Stats error:', err);
+    }
+  }
+
+  function renderChart(total) {
+    const bars = document.getElementById('chartBars');
+    const labels = document.getElementById('chartLabels');
+    bars.innerHTML = ''; labels.innerHTML = '';
+    const days = ['M','T','W','T','F','S','S','M','T','W','T','F','S','S'];
+    const vals = Array.from({length:14}, () => Math.floor(Math.random() * Math.max(total, 3)));
+    const max = Math.max(...vals, 1);
+    vals.forEach((v,i) => {
+      const b = document.createElement('div');
+      b.className = 'c-bar' + (i >= 10 ? ' hi' : '');
+      b.style.height = (v/max*100) + '%';
+      bars.appendChild(b);
+      const l = document.createElement('div');
+      l.className = 'c-lbl';
+      l.textContent = days[i];
+      labels.appendChild(l);
+    });
+  }
+
+  function renderMilestones(count) {
+    const all = [
+      { label:'🌟 First Review', target:1 },
+      { label:'🔥 10 Reviews', target:10 },
+      { label:'💪 25 Reviews', target:25 },
+      { label:'🚀 50 Reviews', target:50 },
+      { label:'👑 100 Reviews', target:100 },
+    ];
+    const html = all.map(m => {
+      const done = count >= m.target;
+      return `<div class="ms-item">
+        <span class="ms-icon">${done ? '✅' : '⏳'}</span>
+        <span class="ms-text">${m.label}</span>
+        <span class="ms-status ${done ? 'ms-done' : 'ms-pending'}">${done ? 'Achieved!' : count+'/'+m.target}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('overviewMilestones').innerHTML = html;
+    document.getElementById('milestonesList').innerHTML = html;
+  }
+
+  function renderFeedback(feedback) {
+    if (!feedback.length) {
+      const empty = '<div class="empty">🎉 No negative feedback yet — keep it up!</div>';
+      document.getElementById('overviewFeedback').innerHTML = empty;
+      document.getElementById('feedbackList').innerHTML = empty;
+      return;
+    }
+    const html = feedback.map(f => `
+      <div class="fb-item">
+        <div class="fb-top">
+          <div class="fb-stars">${'⭐'.repeat(f.rating)}</div>
+          <div class="fb-date">${new Date(f.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="fb-msg">${f.message}</div>
+        ${f.customer_name ? `<div class="fb-name">— ${f.customer_name}</div>` : ''}
+      </div>
+    `).join('');
+    document.getElementById('overviewFeedback').innerHTML = html;
+    document.getElementById('feedbackList').innerHTML = html;
+  }
+
+  function generateQR() {
+    if (!businessId) return;
+    const qrUrl = `${window.location.origin}/review?b=${businessId}`;
+    document.getElementById('qrUrl').textContent = qrUrl;
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById('qrcode'), {
+      text: qrUrl,
+      width: 200, height: 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+
+  function printQR() { window.print(); }
+
+  function downloadQR() {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (canvas) {
+      const link = document.createElement('a');
+      link.download = 'autoreach-qr.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  }
+
+  function checkMilestones() {
+    const count = parseInt(document.getElementById('kpiPositive').textContent) || 0;
+    const next = [1,10,25,50,100].find(m => m > count);
+    if (next) {
+      showToast('📊', 'Keep going!', `${next - count} more reviews until your next milestone!`);
+    } else {
+      showToast('👑', 'Legend status!', "You've hit 100+ reviews. You're crushing it!");
+    }
+  }
+
+  function showToast(icon, title, msg) {
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastTitle').textContent = title;
+    document.getElementById('toastMsg').textContent = msg;
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function showSection(name, event) {
+    ['overview','qr','feedback','milestones','settings'].forEach(s => {
+      document.getElementById('section-'+s).style.display = s === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (event) event.currentTarget.classList.add('active');
+    const titles = { overview:'Overview', qr:'QR Code', feedback:'Private Feedback', milestones:'Milestones', settings:'Settings' };
+    document.getElementById('pageTitle').textContent = titles[name];
+    if (name === 'qr') generateQR();
+  }
+
+  function saveSettings() {
+    showToast('✅', 'Saved!', 'Your business settings have been updated.');
+  }
+</script>
+</body>
+</html>sssss
