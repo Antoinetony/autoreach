@@ -2,142 +2,357 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Rate Your Experience</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #F5C518;
-    --black: #080808;
-    --card: #161616;
-    --border: #252525;
-    --text: #E6E6E6;
-    --muted: #7A7A7A;
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  
+  body {
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    transition: background 0.6s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--black); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:3rem 2.5rem; max-width:420px; width:100%; text-align:center; }
-  .logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:2rem; display:block; }
-  .logo em { color:var(--gold); font-style:normal; }
-  .biz-name { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:0.5rem; }
-  .question { font-size:1rem; color:var(--muted); margin-bottom:2.5rem; line-height:1.6; }
-  .stars { display:flex; gap:0.75rem; justify-content:center; margin-bottom:2rem; }
-  .star {
-    font-size:3rem; cursor:pointer;
-    transition:transform 0.15s, filter 0.15s;
-    filter:grayscale(1) opacity(0.4);
-    user-select:none;
+
+  body.state-1 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  body.state-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  body.state-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+  body.state-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+  body.state-5 { background: linear-gradient(135deg, #f7971e 0%, #FFD700 100%); }
+
+  .card {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    padding: 2.5rem 2rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
   }
-  .star:hover, .star.active { filter:grayscale(0) opacity(1); transform:scale(1.2); }
-  .star-row:hover .star { filter:grayscale(0) opacity(1); }
-  .star-row .star:hover ~ .star { filter:grayscale(1) opacity(0.4); transform:scale(1); }
-  .rating-label { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--gold); min-height:1.5rem; margin-bottom:2rem; transition:all 0.2s; }
-  .btn-submit {
-    background:var(--gold); color:#000; border:none;
-    padding:1rem 2.5rem; border-radius:10px;
-    font-weight:700; font-size:1rem; cursor:pointer;
-    width:100%; transition:all 0.2s;
-    font-family:'DM Sans',sans-serif;
-    opacity:0.4; pointer-events:none;
+
+  .biz-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    font-weight: 800;
+    color: #111;
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
   }
-  .btn-submit.ready { opacity:1; pointer-events:all; }
-  .btn-submit.ready:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(245,197,24,0.25); }
-  .powered { font-size:0.72rem; color:var(--muted); margin-top:1.5rem; }
-  .powered a { color:var(--gold); text-decoration:none; }
-  .loading { display:none; flex-direction:column; align-items:center; gap:1rem; }
-  .spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg)} }
+
+  .tagline {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 2rem;
+    font-weight: 400;
+  }
+
+  .question {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.8rem;
+    line-height: 1.5;
+  }
+
+  /* STARS */
+  .stars-container {
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.3rem, 2.5vw, 0.8rem);
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .star-btn:active { transform: scale(0.9); }
+
+  .star-emoji {
+    font-size: clamp(2.2rem, 10vw, 3rem);
+    display: block;
+    filter: grayscale(1) opacity(0.35);
+    transition: filter 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    line-height: 1;
+  }
+
+  .star-btn.lit .star-emoji {
+    filter: grayscale(0) opacity(1);
+    transform: scale(1.15);
+  }
+
+  .star-btn.bounce .star-emoji {
+    animation: starBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes starBounce {
+    0% { transform: scale(1.15); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1.15); }
+  }
+
+  /* RATING LABEL */
+  .rating-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    min-height: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
+    letter-spacing: -0.01em;
+  }
+
+  .label-1, .label-2 { color: #f5576c; }
+  .label-3 { color: #4facfe; }
+  .label-4 { color: #43e97b; }
+  .label-5 { color: #f7971e; }
+
+  /* SUBMIT BUTTON */
+  .submit-btn {
+    width: 100%;
+    padding: 1.1rem;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: #ddd;
+    color: #999;
+    pointer-events: none;
+    letter-spacing: -0.01em;
+  }
+
+  .submit-btn.ready {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    pointer-events: all;
+    box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+  }
+
+  .submit-btn.ready:active {
+    transform: scale(0.97);
+  }
+
+  .submit-btn.state-1, .submit-btn.state-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 8px 24px rgba(245,87,108,0.4);
+  }
+  .submit-btn.state-3 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 8px 24px rgba(79,172,254,0.4);
+  }
+  .submit-btn.state-4 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    box-shadow: 0 8px 24px rgba(67,233,123,0.4);
+  }
+  .submit-btn.state-5 {
+    background: linear-gradient(135deg, #f7971e 0%, #FFD700 100%);
+    box-shadow: 0 8px 24px rgba(247,151,30,0.4);
+    color: #333;
+  }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* POWERED BY */
+  .powered {
+    font-size: 0.7rem;
+    color: #bbb;
+    margin-top: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+
+  .powered a {
+    color: #999;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .powered a:hover { color: #667eea; }
+
+  /* EMOJI BURST ANIMATION */
+  .burst {
+    position: fixed;
+    pointer-events: none;
+    font-size: 2rem;
+    animation: burst 1s ease-out forwards;
+    z-index: 999;
+  }
+
+  @keyframes burst {
+    0% { transform: scale(0) translateY(0); opacity: 1; }
+    100% { transform: scale(1.5) translateY(-80px); opacity: 0; }
+  }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <a href="/" class="logo">Auto<em>reach</em></a>
-  <div class="biz-name" id="bizName">Loading...</div>
-  <p class="question">How was your experience today?<br>Tap a star to rate us.</p>
+<div class="card" id="mainCard">
 
-  <div class="stars star-row" id="starRow">
-    <span class="star" data-rating="1">⭐</span>
-    <span class="star" data-rating="2">⭐</span>
-    <span class="star" data-rating="3">⭐</span>
-    <span class="star" data-rating="4">⭐</span>
-    <span class="star" data-rating="5">⭐</span>
+  <div class="biz-name" id="bizName">Loading...</div>
+  <div class="tagline" id="bizTagline">We'd love to hear from you ✨</div>
+
+  <p class="question">How was your experience today?</p>
+
+  <div class="stars-container" id="starsContainer">
+    <button class="star-btn" data-rating="1" onclick="selectStar(1)">
+      <span class="star-emoji">⭐</span>
+    </button>
+    <button class="star-btn" data-rating="2" onclick="selectStar(2)">
+      <span class="star-emoji">⭐</span>
+    </button>
+    <button class="star-btn" data-rating="3" onclick="selectStar(3)">
+      <span class="star-emoji">⭐</span>
+    </button>
+    <button class="star-btn" data-rating="4" onclick="selectStar(4)">
+      <span class="star-emoji">⭐</span>
+    </button>
+    <button class="star-btn" data-rating="5" onclick="selectStar(5)">
+      <span class="star-emoji">⭐</span>
+    </button>
   </div>
 
   <div class="rating-label" id="ratingLabel"></div>
 
-  <button class="btn-submit" id="submitBtn" onclick="submitRating()">
-    Submit Rating
+  <button class="submit-btn" id="submitBtn" onclick="submitRating()">
+    Tap a star to rate us
   </button>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p style="color:var(--muted);font-size:0.9rem;">Redirecting you...</p>
+    <p style="color:#888;font-size:0.9rem;">Taking you there...</p>
   </div>
 
-  <p class="powered">Powered by <a href="/">Autoreach</a></p>
+  <div class="powered">
+    ⚡ Powered by <a href="https://autoreach.online">Autoreach</a>
+  </div>
+
 </div>
 
 <script>
-  const labels = ['', 'Poor 😕', 'Not Great 😐', 'Okay 🙂', 'Good 😊', 'Amazing! 🤩'];
+  const labels = {
+    1: "We're sorry 😔",
+    2: "We'll do better 😐",
+    3: "Not bad 🙂",
+    4: "Great experience! 😊",
+    5: "You're Amazing! 🤩"
+  };
+
+  const stateClass = {
+    1: 'state-1', 2: 'state-2', 3: 'state-3', 4: 'state-4', 5: 'state-5'
+  };
+
   let selectedRating = 0;
   const businessId = new URLSearchParams(window.location.search).get('b');
 
   // Load business name
-  if (businessId) {
-    fetch(`/api/dashboard/business/${businessId}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.business) {
-          document.getElementById('bizName').textContent = data.business.name;
-        }
-      })
-      .catch(() => {
-        document.getElementById('bizName').textContent = 'Rate Your Experience';
-      });
-  } else {
-    document.getElementById('bizName').textContent = 'Rate Your Experience';
-  }
-
-  // Star hover & click logic
-  const stars = document.querySelectorAll('.star');
-  stars.forEach(star => {
-    star.addEventListener('mouseover', () => {
-      const r = parseInt(star.dataset.rating);
-      highlightStars(r);
-      document.getElementById('ratingLabel').textContent = labels[r];
-    });
-
-    star.addEventListener('click', () => {
-      selectedRating = parseInt(star.dataset.rating);
-      highlightStars(selectedRating);
-      document.getElementById('ratingLabel').textContent = labels[selectedRating];
-      document.getElementById('submitBtn').classList.add('ready');
-    });
-  });
-
-  document.getElementById('starRow').addEventListener('mouseleave', () => {
-    if (selectedRating > 0) {
-      highlightStars(selectedRating);
-      document.getElementById('ratingLabel').textContent = labels[selectedRating];
+  window.addEventListener('load', () => {
+    if (businessId) {
+      fetch(`/api/dashboard/business/${businessId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.business) {
+            document.getElementById('bizName').textContent = data.business.name;
+            document.title = data.business.name + ' — Rate Us';
+          } else {
+            document.getElementById('bizName').textContent = 'Rate Your Visit';
+          }
+        })
+        .catch(() => {
+          document.getElementById('bizName').textContent = 'Rate Your Visit';
+        });
     } else {
-      stars.forEach(s => s.classList.remove('active'));
-      document.getElementById('ratingLabel').textContent = '';
+      document.getElementById('bizName').textContent = 'Rate Your Visit';
     }
   });
 
-  function highlightStars(rating) {
-    stars.forEach(s => {
-      if (parseInt(s.dataset.rating) <= rating) {
-        s.classList.add('active');
-      } else {
-        s.classList.remove('active');
+  function selectStar(rating) {
+    selectedRating = rating;
+
+    // Update stars
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      const r = parseInt(btn.dataset.rating);
+      btn.classList.toggle('lit', r <= rating);
+      if (r === rating) {
+        btn.classList.add('bounce');
+        setTimeout(() => btn.classList.remove('bounce'), 400);
       }
+    });
+
+    // Update label
+    const label = document.getElementById('ratingLabel');
+    label.textContent = labels[rating];
+    label.className = 'rating-label label-' + rating;
+
+    // Update background
+    document.body.className = 'state-' + rating;
+
+    // Update button
+    const btn = document.getElementById('submitBtn');
+    btn.className = 'submit-btn ready state-' + rating;
+    btn.textContent = rating >= 4 ? 'Share on Google ⭐' : 'Send Feedback →';
+
+    // Burst animation on 5 stars
+    if (rating === 5) launchBurst();
+  }
+
+  function launchBurst() {
+    const emojis = ['⭐','🎉','✨','🔥','💫'];
+    emojis.forEach((emoji, i) => {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'burst';
+        el.textContent = emoji;
+        el.style.left = (20 + Math.random() * 60) + '%';
+        el.style.top = (30 + Math.random() * 40) + '%';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+      }, i * 100);
     });
   }
 
   async function submitRating() {
     if (!selectedRating) return;
+
     document.getElementById('submitBtn').style.display = 'none';
     document.getElementById('loading').style.display = 'flex';
 
