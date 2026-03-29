@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const reviewRoutes = require('./routes/reviews');
 const feedbackRoutes = require('./routes/feedback');
 const dashboardRoutes = require('./routes/dashboard');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth');                                                                  const loyaltyRoutes = require('./routes/loyalty');
 
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/feedback', feedbackRoutes);
@@ -32,12 +32,8 @@ app.get('/review', (req, res) => res.sendFile(path.join(__dirname, 'public', 're
 app.get('/feedback', (req, res) => res.sendFile(path.join(__dirname, 'public', 'feedback.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
-app.get('/sms-landing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sms-landing.html')));
+app.get('/sms-landing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sms-landing.html')));                                           app.get('/loyalty', (req, res) => res.sendFile(path.join(__dirname, 'public', 'loyalty.html')));  
 
 app.listen(PORT, () => {
   console.log(`Autoreach running on port ${PORT}`);
 });
-
-
- 
- 
