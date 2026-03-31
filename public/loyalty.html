@@ -7,45 +7,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body {
-    min-height: 100vh;
-    font-family: 'DM Sans', sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); display:flex; align-items:center; justify-content:center; padding:1.5rem; }
   .card { background:white; border-radius:28px; padding:2.2rem 1.8rem; max-width:400px; width:100%; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,0.3); }
   .biz-name { font-family:'Syne',sans-serif; font-size:clamp(1.5rem,6vw,2rem); font-weight:800; color:#111; margin-bottom:0.3rem; letter-spacing:-0.02em; }
   .card-title { font-size:0.85rem; color:#888; margin-bottom:1.8rem; font-weight:500; }
-  .stamp-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0.6rem; margin-bottom:1.5rem; padding:1.2rem; background:#f8f8f8; border-radius:16px; }
-  .stamp { aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:clamp(1.2rem,5vw,1.6rem); transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); border:2px dashed #ddd; background:white; }
+
+  /* PHONE INPUT SCREEN */
+  .phone-screen { display:flex; flex-direction:column; gap:1rem; }
+  .phone-screen h2 { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#111; }
+  .phone-screen p { font-size:0.88rem; color:#888; line-height:1.6; }
+  .input-wrap { position:relative; }
+  .input-field { width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:14px; font-family:'DM Sans',sans-serif; font-size:1rem; color:#111; outline:none; transition:border-color 0.2s; background:#fafafa; }
+  .input-field:focus { border-color:#F5C518; background:white; }
+  .suggestions { position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #eee; border-radius:12px; margin-top:4px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.1); z-index:10; display:none; }
+  .suggestion-item { padding:0.8rem 1.2rem; font-size:0.88rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s; }
+  .suggestion-item:hover { background:#fafafa; }
+  .suggestion-stamps { font-size:0.75rem; color:#F5C518; font-weight:700; }
+  .action-btn { width:100%; padding:1rem; border:none; border-radius:14px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#F5C518,#f7971e); color:#111; box-shadow:0 6px 20px rgba(245,197,24,0.3); transition:all 0.2s; }
+  .action-btn:active { transform:scale(0.97); }
+  .action-btn:disabled { background:#eee; color:#aaa; box-shadow:none; cursor:default; }
+
+  /* STAMP CARD SCREEN */
+  .stamp-screen { display:none; flex-direction:column; gap:1rem; }
+  .welcome-msg { font-size:1rem; font-weight:600; color:#333; }
+  .welcome-msg em { color:#F5C518; font-style:normal; }
+  .stamp-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0.5rem; padding:1.2rem; background:#f8f8f8; border-radius:16px; }
+  .stamp { aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:clamp(1.1rem,4.5vw,1.5rem); border:2px dashed #ddd; background:white; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); }
   .stamp.filled { background:linear-gradient(135deg,#F5C518,#f7971e); border:none; box-shadow:0 4px 12px rgba(245,197,24,0.4); transform:scale(1.05); }
   .stamp.new-stamp { animation:stampIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
   @keyframes stampIn { 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.3) rotate(5deg)} 100%{transform:scale(1.05) rotate(0);opacity:1} }
-  .progress-wrap { margin-bottom:1.5rem; }
-  .progress-text { display:flex; justify-content:space-between; font-size:0.82rem; color:#888; margin-bottom:0.5rem; font-weight:500; }
-  .progress-bar { height:8px; background:#eee; border-radius:100px; overflow:hidden; }
+  .progress-wrap { }
+  .progress-text { display:flex; justify-content:space-between; font-size:0.8rem; color:#888; margin-bottom:0.4rem; }
+  .progress-bar { height:7px; background:#eee; border-radius:100px; overflow:hidden; }
   .progress-fill { height:100%; background:linear-gradient(90deg,#F5C518,#f7971e); border-radius:100px; transition:width 1s cubic-bezier(0.34,1.56,0.64,1); width:0%; }
-  .stamp-count { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:#333; margin-bottom:1.5rem; }
-  .stamp-count em { color:#F5C518; font-style:normal; font-size:1.4rem; }
-  .reward-box { background:linear-gradient(135deg,rgba(245,197,24,0.1),rgba(247,151,30,0.1)); border:1px solid rgba(245,197,24,0.3); border-radius:14px; padding:1rem; margin-bottom:1.5rem; }
-  .reward-label { font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#F5C518; margin-bottom:0.3rem; }
-  .reward-text { font-size:0.88rem; color:#333; font-weight:500; line-height:1.5; }
-  .collect-btn { width:100%; padding:1.1rem; border:none; border-radius:16px; font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#F5C518,#f7971e); color:#111; box-shadow:0 8px 24px rgba(245,197,24,0.35); transition:all 0.2s; letter-spacing:-0.01em; }
-  .collect-btn:active { transform:scale(0.97); }
-  .collect-btn:disabled { background:#eee; color:#aaa; box-shadow:none; cursor:default; }
-  .reward-unlocked { display:none; flex-direction:column; align-items:center; gap:0.8rem; padding:1.5rem; background:linear-gradient(135deg,#F5C518,#f7971e); border-radius:20px; margin-bottom:1.5rem; }
+  .stamp-count { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; color:#333; }
+  .stamp-count em { color:#F5C518; font-style:normal; font-size:1.3rem; }
+  .reward-box { background:linear-gradient(135deg,rgba(245,197,24,0.08),rgba(247,151,30,0.08)); border:1px solid rgba(245,197,24,0.25); border-radius:12px; padding:0.9rem; }
+  .reward-label { font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#F5C518; margin-bottom:0.25rem; }
+  .reward-text { font-size:0.85rem; color:#333; font-weight:500; line-height:1.4; }
+  .already-stamped { background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:0.8rem; font-size:0.82rem; color:#0369a1; font-weight:500; display:none; }
+
+  /* REWARD UNLOCKED */
+  .reward-unlocked { display:none; flex-direction:column; align-items:center; gap:0.8rem; padding:1.5rem; background:linear-gradient(135deg,#F5C518,#f7971e); border-radius:20px; }
   .reward-unlocked .icon { font-size:3rem; }
-  .reward-unlocked h2 { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:#111; }
-  .reward-unlocked p { font-size:0.88rem; color:#333; line-height:1.5; }
-  .reward-code { background:white; border-radius:10px; padding:0.8rem 1.5rem; font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#111; letter-spacing:0.1em; }
-  .already-stamped { display:none; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:0.9rem; font-size:0.85rem; color:#0369a1; margin-bottom:1rem; font-weight:500; }
-  .loading { display:none; flex-direction:column; align-items:center; gap:0.8rem; padding:1rem 0; }
-  .spinner { width:40px; height:40px; border:3px solid #eee; border-top-color:#F5C518; border-radius:50%; animation:spin 0.8s linear infinite; }
+  .reward-unlocked h2 { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#111; }
+  .reward-unlocked p { font-size:0.85rem; color:#333; line-height:1.5; }
+  .reward-code { background:white; border-radius:10px; padding:0.7rem 1.4rem; font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#111; letter-spacing:0.1em; }
+
+  .loading { display:none; flex-direction:column; align-items:center; gap:0.8rem; padding:0.5rem 0; }
+  .spinner { width:38px; height:38px; border:3px solid #eee; border-top-color:#F5C518; border-radius:50%; animation:spin 0.8s linear infinite; }
   @keyframes spin { to{transform:rotate(360deg)} }
-  .powered { font-size:0.7rem; color:#ccc; margin-top:1.5rem; }
+  .powered { font-size:0.68rem; color:#ccc; margin-top:1.5rem; }
   .powered a { color:#aaa; text-decoration:none; font-weight:600; }
   .burst { position:fixed; pointer-events:none; font-size:2rem; animation:burst 1s ease-out forwards; z-index:999; }
   @keyframes burst { 0%{transform:scale(0) translateY(0);opacity:1} 100%{transform:scale(1.5) translateY(-80px);opacity:0} }
@@ -54,35 +66,52 @@
 <body>
 <div class="card">
   <div class="biz-name" id="bizName">Loading...</div>
-  <div class="card-title">🎟️ Your Loyalty Card</div>
-  <div class="already-stamped" id="alreadyStamped">✅ You already got a stamp today! Come back next visit.</div>
-  <div class="stamp-grid" id="stampGrid"></div>
-  <div class="progress-wrap">
-    <div class="progress-text">
-      <span>Your progress</span>
-      <span id="progressText">0 stamps</span>
+  <div class="card-title">🎟️ Loyalty Card</div>
+
+  <!-- PHONE INPUT SCREEN -->
+  <div class="phone-screen" id="phoneScreen">
+    <h2>Enter your phone number</h2>
+    <p>We'll use this to track your stamps across visits — even if you change phones! 📱</p>
+    <div class="input-wrap">
+      <input class="input-field" type="tel" id="phoneInput" placeholder="+1 (555) 000-0000" oninput="onPhoneInput()">
     </div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
+    <div class="input-wrap" id="nameWrap" style="display:none">
+      <input class="input-field" type="text" id="nameInput" placeholder="Your first name (optional)">
     </div>
+    <button class="action-btn" id="phoneBtn" onclick="lookupPhone()" disabled>Continue →</button>
   </div>
-  <div class="stamp-count">You have <em id="stampNum">0</em> stamps</div>
-  <div class="reward-box">
-    <div class="reward-label">🎁 Your Reward</div>
-    <div class="reward-text" id="rewardText">Loading reward...</div>
+
+  <!-- STAMP CARD SCREEN -->
+  <div class="stamp-screen" id="stampScreen">
+    <div class="welcome-msg" id="welcomeMsg">Welcome back! 👋</div>
+    <div class="already-stamped" id="alreadyStamped">✅ Already stamped today! Come back next visit.</div>
+    <div class="stamp-grid" id="stampGrid"></div>
+    <div class="progress-wrap">
+      <div class="progress-text">
+        <span>Progress</span>
+        <span id="progressText">0 stamps</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="stamp-count">You have <em id="stampNum">0</em> stamps</div>
+    <div class="reward-box">
+      <div class="reward-label">🎁 Your Reward</div>
+      <div class="reward-text" id="rewardText"></div>
+    </div>
+    <div class="reward-unlocked" id="rewardUnlocked">
+      <div class="icon">🎉</div>
+      <h2>Reward Unlocked!</h2>
+      <p id="rewardUnlockedText"></p>
+      <div class="reward-code" id="rewardCode"></div>
+      <p style="font-size:0.72rem;color:#555;">Show this to your stylist/barber</p>
+    </div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="color:#888;font-size:0.82rem;">Collecting your stamp...</p>
+    </div>
+    <button class="action-btn" id="collectBtn" onclick="collectStamp()">⭐ Collect My Stamp</button>
   </div>
-  <div class="reward-unlocked" id="rewardUnlocked">
-    <div class="icon">🎉</div>
-    <h2>Reward Unlocked!</h2>
-    <p id="rewardUnlockedText"></p>
-    <div class="reward-code" id="rewardCode"></div>
-    <p style="font-size:0.75rem;color:#555;">Show this to your stylist/barber</p>
-  </div>
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p style="color:#888;font-size:0.85rem;">Collecting your stamp...</p>
-  </div>
-  <button class="collect-btn" id="collectBtn" onclick="collectStamp()">✅ Collect My Stamp</button>
+
   <div class="powered">⚡ Powered by <a href="https://autoreach.online">Autoreach</a></div>
 </div>
 
@@ -90,61 +119,81 @@
   const businessId = new URLSearchParams(window.location.search).get('b');
   let stampsRequired = 10;
   let currentStamps = 0;
-
-  function getCustomerToken() {
-    let token = localStorage.getItem('ar_customer_token');
-    if (!token) {
-      token = 'cust_' + Math.random().toString(36).substr(2,9) + Date.now().toString(36);
-      localStorage.setItem('ar_customer_token', token);
-    }
-    return token;
-  }
+  let customerPhone = '';
 
   function alreadyStampedToday() {
-    const lastStamp = localStorage.getItem('ar_last_stamp_' + businessId);
-    if (!lastStamp) return false;
-    const last = new Date(lastStamp);
-    const now = new Date();
-    return last.toDateString() === now.toDateString();
+    const last = localStorage.getItem('ar_last_stamp_' + businessId);
+    if (!last) return false;
+    return new Date(last).toDateString() === new Date().toDateString();
   }
 
   window.addEventListener('load', async () => {
-    if (!businessId) {
-      document.getElementById('bizName').textContent = 'Loyalty Card';
-      return;
-    }
+    if (!businessId) return;
     try {
       const res = await fetch(`/api/dashboard/business/${businessId}`);
       const data = await res.json();
       if (data.business) {
         document.getElementById('bizName').textContent = data.business.name;
-        document.title = data.business.name + ' — Loyalty Card';
+        document.title = data.business.name + ' — Loyalty';
       }
     } catch(e) {}
-    await loadLoyaltyData();
-    if (alreadyStampedToday()) {
-      document.getElementById('alreadyStamped').style.display = 'block';
-      document.getElementById('collectBtn').disabled = true;
-      document.getElementById('collectBtn').textContent = '✅ Already stamped today!';
+
+    // Check saved phone
+    const savedPhone = localStorage.getItem('ar_phone_' + businessId);
+    if (savedPhone) {
+      customerPhone = savedPhone;
+      await loadCard(savedPhone);
     }
   });
 
-  async function loadLoyaltyData() {
+  function onPhoneInput() {
+    const val = document.getElementById('phoneInput').value.trim();
+    document.getElementById('phoneBtn').disabled = val.length < 7;
+    if (val.length >= 7) {
+      document.getElementById('nameWrap').style.display = 'block';
+    }
+  }
+
+  async function lookupPhone() {
+    const phone = document.getElementById('phoneInput').value.trim();
+    if (!phone) return;
+    customerPhone = phone;
+    localStorage.setItem('ar_phone_' + businessId, phone);
+    await loadCard(phone);
+  }
+
+  async function loadCard(phone) {
     try {
-      const token = getCustomerToken();
-      const res = await fetch(`/api/loyalty/card?business_id=${businessId}&token=${token}`);
+      const res = await fetch(`/api/loyalty/card?business_id=${businessId}&phone=${encodeURIComponent(phone)}`);
       const data = await res.json();
+
       stampsRequired = data.stamps_required || 10;
       currentStamps = data.stamp_count || 0;
+
       document.getElementById('rewardText').textContent =
         `Collect ${stampsRequired} stamps to earn: ${data.reward_description || 'A free service!'}`;
+
+      const name = data.customer_name || document.getElementById('nameInput')?.value || '';
+      document.getElementById('welcomeMsg').innerHTML =
+        name ? `Welcome back, <em>${name}</em>! 👋` : `Welcome back! 👋`;
+
+      document.getElementById('phoneScreen').style.display = 'none';
+      document.getElementById('stampScreen').style.display = 'flex';
+
       updateStampUI(currentStamps, stampsRequired, false);
-      if (data.reward_claimed || currentStamps >= stampsRequired) {
+
+      if (alreadyStampedToday()) {
+        document.getElementById('alreadyStamped').style.display = 'block';
+        document.getElementById('collectBtn').disabled = true;
+        document.getElementById('collectBtn').textContent = '✅ Already stamped today!';
+      }
+
+      if (currentStamps >= stampsRequired) {
         showRewardUnlocked(data.reward_description);
       }
+
     } catch(e) {
-      document.getElementById('rewardText').textContent = 'Collect stamps to earn a reward!';
-      updateStampUI(0, 10, false);
+      console.error(e);
     }
   }
 
@@ -152,13 +201,13 @@
     const grid = document.getElementById('stampGrid');
     grid.innerHTML = '';
     for (let i = 0; i < required; i++) {
-      const stamp = document.createElement('div');
-      stamp.className = 'stamp' + (i < count ? ' filled' : '');
+      const s = document.createElement('div');
+      s.className = 'stamp' + (i < count ? ' filled' : '');
       if (i < count) {
-        stamp.textContent = '⭐';
-        if (animate && i === count - 1) stamp.classList.add('new-stamp');
+        s.textContent = '⭐';
+        if (animate && i === count - 1) s.classList.add('new-stamp');
       }
-      grid.appendChild(stamp);
+      grid.appendChild(s);
     }
     const pct = Math.min((count / required) * 100, 100);
     document.getElementById('progressFill').style.width = pct + '%';
@@ -170,20 +219,26 @@
     if (alreadyStampedToday()) return;
     document.getElementById('collectBtn').style.display = 'none';
     document.getElementById('loading').style.display = 'flex';
+
     try {
-      const token = getCustomerToken();
+      const name = document.getElementById('nameInput')?.value ||
+        document.getElementById('welcomeMsg').textContent.replace('Welcome back,','').replace('!','').replace('👋','').trim();
+
       const res = await fetch('/api/loyalty/stamp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ business_id: businessId, customer_token: token })
+        body: JSON.stringify({ business_id: businessId, phone: customerPhone, customer_name: name })
       });
       const data = await res.json();
+
       document.getElementById('loading').style.display = 'none';
+
       if (data.success) {
         currentStamps = data.stamp_count;
         localStorage.setItem('ar_last_stamp_' + businessId, new Date().toISOString());
         updateStampUI(currentStamps, stampsRequired, true);
         launchBurst();
+
         if (data.reward_unlocked) {
           setTimeout(() => showRewardUnlocked(data.reward_description), 800);
         } else {
@@ -206,19 +261,16 @@
     const code = 'REWARD-' + Math.random().toString(36).substr(2,6).toUpperCase();
     document.getElementById('rewardCode').textContent = code;
     document.getElementById('collectBtn').style.display = 'none';
-    launchBurst();
-    launchBurst();
+    launchBurst(); launchBurst();
   }
 
   function launchBurst() {
-    const emojis = ['⭐','🎉','✨','🔥','💫','🎊'];
-    emojis.forEach((emoji, i) => {
+    ['⭐','🎉','✨','🔥','💫','🎊'].forEach((e,i) => {
       setTimeout(() => {
         const el = document.createElement('div');
-        el.className = 'burst';
-        el.textContent = emoji;
-        el.style.left = (10 + Math.random() * 80) + '%';
-        el.style.top = (20 + Math.random() * 60) + '%';
+        el.className = 'burst'; el.textContent = e;
+        el.style.left = (10 + Math.random()*80) + '%';
+        el.style.top = (20 + Math.random()*60) + '%';
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1000);
       }, i * 80);
@@ -227,4 +279,3 @@
 </script>
 </body>
 </html>
-

@@ -85,8 +85,8 @@ router.post('/stamp', async (req, res) => {
       .eq('customer_phone', phone)
       .single();
 
-    if (!card) {
-      const { data: newCard } = await supabase
+   if (!card) {
+      const { data: newCard, error: insertError } = await supabase
         .from('loyalty_cards')
         .insert([{
           business_id,
@@ -97,10 +97,31 @@ router.post('/stamp', async (req, res) => {
         }])
         .select()
         .single();
+      
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        return res.status(500).json({ error: insertError.message });
+      }
       card = newCard;
     }
 
-    const newCount = (card.stamp_count || 0) + 1;
+    if (!card) {
+      return res.status(500).json({ error: 'Could not create or find loyalty card' });
+    }
+
+    // Server-side same-day check
+if (card.last_visit) {
+  const lastVisit = new Date(card.last_visit);
+  const now = new Date();
+  if (lastVisit.toDateString() === now.toDateString()) {
+    return res.json({
+      success: false,
+      already_stamped: true,
+      stamp_count: card.stamp_count,
+      message: 'Already stamped today!'
+    });
+  }
+}const newCount = (card.stamp_count || 0) + 1;
     const rewardUnlocked = newCount >= stampsRequired;
 
     await supabase
