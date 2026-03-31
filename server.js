@@ -33,7 +33,7 @@ app.get('/feedback', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
 app.get('/sms-landing', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sms-landing.html')));
-app.get('/loyalty', (req, res) => res.sendFile(path.join(__dirname, 'public', 'loyalty.html')));
+app.get('/loyalty', (req, res) => res.sendFile(path.join(__dirname, 'public', 'loyalty.html'))); app.get('/qr-design', (req, res) => res.sendFile(path.join(__dirname, 'public', 'qr-design.html')));
 
 app.listen(PORT, () => {
   console.log(`Autoreach running on port ${PORT}`);

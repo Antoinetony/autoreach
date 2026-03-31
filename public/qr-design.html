@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Designer — Autoreach</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0A0A0A; color:#E6E6E6; font-family:'DM Sans',sans-serif; min-height:100vh; padding:2rem; }
+  nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; text-decoration:none; }
+  .logo em { color:#F5C518; font-style:normal; }
+  .back-btn { background:transparent; border:1px solid #252525; color:#7A7A7A; padding:0.5rem 1rem; border-radius:8px; font-size:0.82rem; cursor:pointer; text-decoration:none; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .back-btn:hover { border-color:#F5C518; color:#F5C518; }
+  h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; margin-bottom:0.4rem; }
+  .sub { color:#7A7A7A; font-size:0.9rem; margin-bottom:2.5rem; }
+  .builder { display:grid; grid-template-columns:1fr 1fr; gap:2rem; max-width:1100px; margin:0 auto; }
+  .panel { background:#161616; border:1px solid #252525; border-radius:16px; padding:1.8rem; }
+  .panel-title { font-family:'Syne',sans-serif; font-size:0.8rem; font-weight:700; color:#7A7A7A; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1.5rem; }
+  .form-group { margin-bottom:1.2rem; }
+  label { display:block; font-size:0.78rem; font-weight:600; color:#7A7A7A; margin-bottom:0.4rem; letter-spacing:0.02em; }
+  input, select, textarea { background:#1C1C1C; border:1px solid #2E2E2E; color:#E6E6E6; font-family:'DM Sans',sans-serif; font-size:0.9rem; border-radius:8px; padding:0.75rem 1rem; width:100%; outline:none; transition:border-color 0.2s; }
+  input:focus, select:focus, textarea:focus { border-color:#F5C518; }
+  input::placeholder, textarea::placeholder { color:#3A3A3A; }
+  textarea { resize:vertical; min-height:80px; }
+  .tab-row { display:flex; gap:0.5rem; margin-bottom:1.5rem; }
+  .tab { flex:1; padding:0.7rem; border:1px solid #252525; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s; background:transparent; color:#7A7A7A; font-family:'DM Sans',sans-serif; }
+  .tab.active { background:rgba(245,197,24,0.1); border-color:#F5C518; color:#F5C518; }
+  .color-row { display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .color-opt { width:32px; height:32px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.2s; }
+  .color-opt.selected { border-color:#fff; transform:scale(1.15); }
+  .generate-btn { background:#F5C518; color:#000; border:none; padding:1rem; border-radius:10px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; width:100%; transition:all 0.2s; margin-top:0.5rem; }
+  .generate-btn:hover { opacity:0.9; transform:translateY(-1px); }
+
+  /* PREVIEW AREA */
+  .preview-panel { display:flex; flex-direction:column; gap:1.5rem; }
+  .qr-preview-wrap {
+    background:#fff;
+    border-radius:16px;
+    padding:1.5rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:320px;
+    position:relative;
+    overflow:hidden;
+  }
+  .qr-preview-wrap.theme-gold { background:linear-gradient(135deg,#1a1a1a,#2a2200); border:3px solid #F5C518; }
+  .qr-preview-wrap.theme-white { background:#ffffff; border:3px solid #F5C518; }
+  .qr-preview-wrap.theme-dark { background:#0A0A0A; border:3px solid #F5C518; }
+  .qr-preview-wrap.theme-gradient { background:linear-gradient(135deg,#667eea,#764ba2); border:none; }
+
+  .qr-top-badge {
+    font-size:0.65rem;
+    font-weight:800;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    padding:0.25rem 0.8rem;
+    border-radius:100px;
+    margin-bottom:0.8rem;
+  }
+  .badge-review { background:rgba(245,197,24,0.2); color:#F5C518; border:1px solid rgba(245,197,24,0.4); }
+  .badge-loyalty { background:rgba(102,126,234,0.2); color:#a78bfa; border:1px solid rgba(102,126,234,0.4); }
+
+  .qr-biz-name {
+    font-family:'Syne',sans-serif;
+    font-size:clamp(1.2rem,3vw,1.6rem);
+    font-weight:800;
+    text-align:center;
+    margin-bottom:0.3rem;
+    line-height:1.1;
+  }
+  .qr-message {
+    font-size:0.82rem;
+    text-align:center;
+    margin-bottom:1rem;
+    line-height:1.5;
+    max-width:200px;
+  }
+  .qr-frame {
+    padding:10px;
+    border-radius:12px;
+    display:inline-block;
+    margin-bottom:0.8rem;
+  }
+  .frame-gold { background:#F5C518; }
+  .frame-white { background:#ffffff; }
+  .frame-dark { background:#0A0A0A; }
+  .qr-url-text {
+    font-size:0.6rem;
+    text-align:center;
+    opacity:0.5;
+    margin-bottom:0.5rem;
+    word-break:break-all;
+    max-width:200px;
+  }
+  .qr-powered {
+    font-size:0.6rem;
+    opacity:0.4;
+    text-align:center;
+  }
+  .qr-powered em { font-style:normal; font-weight:700; }
+
+  /* EMPTY STATE */
+  .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:1rem; color:#3A3A3A; padding:2rem; text-align:center; }
+  .empty-state .icon { font-size:3rem; }
+  .empty-state p { font-size:0.85rem; line-height:1.6; }
+
+  /* DOWNLOAD BUTTONS */
+  .download-row { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+  .dl-btn { padding:0.8rem; border-radius:10px; font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer; text-align:center; transition:all 0.2s; border:none; }
+  .dl-print { background:#F5C518; color:#000; }
+  .dl-png { background:transparent; border:1px solid #2E2E2E; color:#E6E6E6; }
+  .dl-print:hover, .dl-png:hover { opacity:0.85; transform:translateY(-1px); }
+
+  /* BOTH QR CODES */
+  .both-wrap { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .mini-qr-card { background:#161616; border:1px solid #252525; border-radius:12px; padding:1rem; text-align:center; }
+  .mini-qr-label { font-size:0.72rem; color:#7A7A7A; font-weight:600; margin-bottom:0.8rem; text-transform:uppercase; letter-spacing:0.08em; }
+
+  @media(max-width:800px){
+    .builder{grid-template-columns:1fr;}
+    .both-wrap{grid-template-columns:1fr;}
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    body { background:white; padding:0; }
+    nav, .panel:first-child, .download-row, .panel-title, .both-wrap { display:none !important; }
+    .builder { grid-template-columns:1fr; }
+    .qr-preview-wrap { border:2px solid #F5C518 !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/dashboard" class="logo">Auto<em>reach</em></a>
+  <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+</nav>
+
+<div style="max-width:1100px;margin:0 auto;">
+  <h1>QR Code Designer 🎨</h1>
+  <p class="sub">Design and print your Review QR and Loyalty QR codes. Put them anywhere customers can see them.</p>
+
+  <div class="builder">
+    <!-- LEFT: CONTROLS -->
+    <div class="panel">
+      <div class="panel-title">Configure Your QR Codes</div>
+
+      <!-- QR TYPE TABS -->
+      <div class="tab-row">
+        <button class="tab active" onclick="switchTab('review', this)">⭐ Review QR</button>
+        <button class="tab" onclick="switchTab('loyalty', this)">🎟️ Loyalty QR</button>
+        <button class="tab" onclick="switchTab('both', this)">📋 Print Both</button>
+      </div>
+
+      <div class="form-group">
+        <label>BUSINESS NAME</label>
+        <input type="text" id="bizNameInput" placeholder="e.g. Fade Kings Barbershop" oninput="updatePreview()">
+      </div>
+
+      <div id="reviewFields">
+        <div class="form-group">
+          <label>MESSAGE ON REVIEW QR</label>
+          <textarea id="reviewMsg" oninput="updatePreview()">Loved your visit? 
+Drop us a quick ⭐ review!</textarea>
+        </div>
+      </div>
+
+      <div id="loyaltyFields" style="display:none">
+        <div class="form-group">
+          <label>MESSAGE ON LOYALTY QR</label>
+          <textarea id="loyaltyMsg" oninput="updatePreview()">Scan after every visit 
+to collect your stamp! 🎟️</textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>THEME</label>
+        <div class="color-row" id="themeRow">
+          <div class="color-opt selected" style="background:#ffffff;border:2px solid #ddd;" data-theme="white" onclick="selectTheme('white',this)" title="White"></div>
+          <div class="color-opt" style="background:linear-gradient(135deg,#1a1a1a,#2a2200);" data-theme="gold" onclick="selectTheme('gold',this)" title="Dark Gold"></div>
+          <div class="color-opt" style="background:#0A0A0A;" data-theme="dark" onclick="selectTheme('dark',this)" title="Black"></div>
+          <div class="color-opt" style="background:linear-gradient(135deg,#667eea,#764ba2);" data-theme="gradient" onclick="selectTheme('gradient',this)" title="Purple"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>YOUR BUSINESS ID (auto-filled after login)</label>
+        <input type="text" id="bizIdInput" placeholder="Paste your business ID here" oninput="updatePreview()">
+      </div>
+
+      <button class="generate-btn" onclick="generateQRs()">✦ Generate QR Codes</button>
+    </div>
+
+    <!-- RIGHT: PREVIEW -->
+    <div class="preview-panel">
+
+      <!-- SINGLE QR PREVIEW -->
+      <div id="singlePreview">
+        <div class="panel-title" style="margin-bottom:1rem;">Preview</div>
+        <div class="qr-preview-wrap theme-white" id="qrPreviewCard">
+          <div class="empty-state" id="emptyState">
+            <div class="icon">🎨</div>
+            <p>Fill in your business name and click Generate to see your QR code design</p>
+          </div>
+          <div id="qrDesignContent" style="display:none;flex-direction:column;align-items:center;width:100%;">
+            <div class="qr-top-badge badge-review" id="qrBadge">Review QR</div>
+            <div class="qr-biz-name" id="qrBizNameDisplay"></div>
+            <div class="qr-message" id="qrMessageDisplay"></div>
+            <div class="qr-frame frame-gold" id="qrFrame">
+              <div id="qrCodeDisplay"></div>
+            </div>
+            <div class="qr-url-text" id="qrUrlDisplay"></div>
+            <div class="qr-powered">⚡ Powered by <em>Autoreach</em></div>
+          </div>
+        </div>
+
+        <div class="download-row" style="margin-top:1rem;" id="downloadRow">
+          <button class="dl-btn dl-print" onclick="printQR()">🖨️ Print</button>
+          <button class="dl-btn dl-png" onclick="downloadPNG()">⬇️ Download PNG</button>
+        </div>
+      </div>
+
+      <!-- BOTH QR PREVIEW -->
+      <div id="bothPreview" style="display:none;">
+        <div class="panel-title" style="margin-bottom:1rem;">Both QR Codes</div>
+        <div class="both-wrap">
+          <div class="mini-qr-card">
+            <div class="mini-qr-label">⭐ Review QR</div>
+            <div id="miniReviewQR"></div>
+            <div style="font-size:0.7rem;color:#7A7A7A;margin-top:0.5rem;">Scan to rate your visit</div>
+          </div>
+          <div class="mini-qr-card">
+            <div class="mini-qr-label">🎟️ Loyalty QR</div>
+            <div id="miniLoyaltyQR"></div>
+            <div style="font-size:0.7rem;color:#7A7A7A;margin-top:0.5rem;">Scan to collect stamps</div>
+          </div>
+        </div>
+        <div class="download-row" style="margin-top:1rem;">
+          <button class="dl-btn dl-print" onclick="printBoth()">🖨️ Print Both</button>
+          <button class="dl-btn dl-png" onclick="downloadBothPNG()">⬇️ Download Both</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentTab = 'review';
+  let currentTheme = 'white';
+  let qrGenerated = false;
+
+  // Auto-fill business ID from localStorage
+  window.addEventListener('load', () => {
+    const biz = localStorage.getItem('ar_business');
+    if (biz) {
+      const data = JSON.parse(biz);
+      document.getElementById('bizIdInput').value = data.id || '';
+      document.getElementById('bizNameInput').value = data.name || '';
+      updatePreview();
+    }
+  });
+
+  function switchTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('reviewFields').style.display = tab === 'loyalty' ? 'none' : 'block';
+    document.getElementById('loyaltyFields').style.display = tab === 'loyalty' ? 'block' : 'none';
+    document.getElementById('singlePreview').style.display = tab === 'both' ? 'none' : 'block';
+    document.getElementById('bothPreview').style.display = tab === 'both' ? 'block' : 'none';
+    if (qrGenerated) generateQRs();
+  }
+
+  function selectTheme(theme, el) {
+    currentTheme = theme;
+    document.querySelectorAll('.color-opt').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const card = document.getElementById('qrPreviewCard');
+    card.className = 'qr-preview-wrap theme-' + currentTheme;
+
+    const bizName = document.getElementById('bizNameInput').value;
+    const isDark = currentTheme === 'dark' || currentTheme === 'gold' || currentTheme === 'gradient';
+
+    document.getElementById('qrBizNameDisplay').style.color = isDark ? '#ffffff' : '#111111';
+    document.getElementById('qrMessageDisplay').style.color = isDark ? 'rgba(255,255,255,0.7)' : '#666666';
+    document.getElementById('qrUrlDisplay').style.color = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+    document.getElementById('qrPowered') && (document.getElementById('qrPowered').style.color = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)');
+
+    const frame = document.getElementById('qrFrame');
+    frame.className = 'qr-frame ' + (isDark ? 'frame-gold' : 'frame-gold');
+  }
+
+  function generateQRs() {
+    const bizName = document.getElementById('bizNameInput').value.trim();
+    const bizId = document.getElementById('bizIdInput').value.trim();
+
+    if (!bizName) {
+      alert('Please enter your business name!');
+      return;
+    }
+
+    qrGenerated = true;
+    const baseUrl = window.location.origin;
+    const reviewUrl = `${baseUrl}/review?b=${bizId || 'YOUR_ID'}`;
+    const loyaltyUrl = `${baseUrl}/loyalty?b=${bizId || 'YOUR_ID'}`;
+
+    if (currentTab === 'both') {
+      generateMiniQR('miniReviewQR', reviewUrl);
+      generateMiniQR('miniLoyaltyQR', loyaltyUrl);
+      return;
+    }
+
+    const isLoyalty = currentTab === 'loyalty';
+    const url = isLoyalty ? loyaltyUrl : reviewUrl;
+    const msg = isLoyalty
+      ? document.getElementById('loyaltyMsg').value
+      : document.getElementById('reviewMsg').value;
+
+    const badge = document.getElementById('qrBadge');
+    badge.className = 'qr-top-badge ' + (isLoyalty ? 'badge-loyalty' : 'badge-review');
+    badge.textContent = isLoyalty ? '🎟️ Loyalty QR' : '⭐ Review QR';
+
+    document.getElementById('qrBizNameDisplay').textContent = bizName;
+    document.getElementById('qrMessageDisplay').textContent = msg;
+    document.getElementById('qrUrlDisplay').textContent = url;
+
+    document.getElementById('qrCodeDisplay').innerHTML = '';
+    new QRCode(document.getElementById('qrCodeDisplay'), {
+      text: url,
+      width: 160,
+      height: 160,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('qrDesignContent').style.display = 'flex';
+    updatePreview();
+  }
+
+  function generateMiniQR(containerId, url) {
+    document.getElementById(containerId).innerHTML = '';
+    new QRCode(document.getElementById(containerId), {
+      text: url,
+      width: 120,
+      height: 120,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+
+  function printQR() {
+    window.print();
+  }
+
+  function printBoth() {
+    window.print();
+  }
+
+  function downloadPNG() {
+    const canvas = document.querySelector('#qrCodeDisplay canvas');
+    if (!canvas) { alert('Please generate your QR code first!'); return; }
+    const bizName = document.getElementById('bizNameInput').value || 'autoreach';
+    const link = document.createElement('a');
+    link.download = bizName.replace(/\s+/g,'-').toLowerCase() + '-' + currentTab + '-qr.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+
+  function downloadBothPNG() {
+    ['miniReviewQR','miniLoyaltyQR'].forEach((id, i) => {
+      const canvas = document.querySelector('#' + id + ' canvas');
+      if (canvas) {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.download = (i === 0 ? 'review' : 'loyalty') + '-qr.png';
+          link.href = canvas.toDataURL();
+          link.click();
+        }, i * 300);
+      }
+    });
+  }
+</script>
+</body>
+</html>
