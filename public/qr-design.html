@@ -3,134 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Code Designer — Autoreach</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>QR Designer — Autoreach</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Bebas+Neue&family=Permanent+Marker&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0A0A0A; color:#E6E6E6; font-family:'DM Sans',sans-serif; min-height:100vh; padding:2rem; }
-  nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; }
+  body { background:#0a0a0a; color:#e0e0e0; font-family:'DM Sans',sans-serif; min-height:100vh; padding:2rem 1.5rem; }
+  nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
   .logo { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; color:#fff; text-decoration:none; }
   .logo em { color:#F5C518; font-style:normal; }
-  .back-btn { background:transparent; border:1px solid #252525; color:#7A7A7A; padding:0.5rem 1rem; border-radius:8px; font-size:0.82rem; cursor:pointer; text-decoration:none; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
-  .back-btn:hover { border-color:#F5C518; color:#F5C518; }
-  h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; margin-bottom:0.4rem; }
-  .sub { color:#7A7A7A; font-size:0.9rem; margin-bottom:2.5rem; }
-  .builder { display:grid; grid-template-columns:1fr 1fr; gap:2rem; max-width:1100px; margin:0 auto; }
-  .panel { background:#161616; border:1px solid #252525; border-radius:16px; padding:1.8rem; }
-  .panel-title { font-family:'Syne',sans-serif; font-size:0.8rem; font-weight:700; color:#7A7A7A; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1.5rem; }
-  .form-group { margin-bottom:1.2rem; }
-  label { display:block; font-size:0.78rem; font-weight:600; color:#7A7A7A; margin-bottom:0.4rem; letter-spacing:0.02em; }
-  input, select, textarea { background:#1C1C1C; border:1px solid #2E2E2E; color:#E6E6E6; font-family:'DM Sans',sans-serif; font-size:0.9rem; border-radius:8px; padding:0.75rem 1rem; width:100%; outline:none; transition:border-color 0.2s; }
-  input:focus, select:focus, textarea:focus { border-color:#F5C518; }
-  input::placeholder, textarea::placeholder { color:#3A3A3A; }
-  textarea { resize:vertical; min-height:80px; }
-  .tab-row { display:flex; gap:0.5rem; margin-bottom:1.5rem; }
-  .tab { flex:1; padding:0.7rem; border:1px solid #252525; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s; background:transparent; color:#7A7A7A; font-family:'DM Sans',sans-serif; }
-  .tab.active { background:rgba(245,197,24,0.1); border-color:#F5C518; color:#F5C518; }
-  .color-row { display:flex; gap:0.6rem; flex-wrap:wrap; }
-  .color-opt { width:32px; height:32px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.2s; }
-  .color-opt.selected { border-color:#fff; transform:scale(1.15); }
-  .generate-btn { background:#F5C518; color:#000; border:none; padding:1rem; border-radius:10px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; width:100%; transition:all 0.2s; margin-top:0.5rem; }
-  .generate-btn:hover { opacity:0.9; transform:translateY(-1px); }
+  .back { background:transparent; border:1px solid #222; color:#555; padding:0.5rem 1rem; border-radius:8px; font-size:0.82rem; cursor:pointer; text-decoration:none; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+  .back:hover { border-color:#F5C518; color:#F5C518; }
+  h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; margin-bottom:0.3rem; }
+  .sub { color:#444; font-size:0.88rem; margin-bottom:2rem; }
+
+  .layout { display:grid; grid-template-columns:320px 1fr; gap:2rem; max-width:1200px; margin:0 auto; }
+
+  /* CONTROLS */
+  .ctrl-stack { display:flex; flex-direction:column; gap:1rem; }
+  .ctrl-card { background:#131313; border:1px solid #1e1e1e; border-radius:14px; padding:1.3rem; }
+  .ctrl-title { font-size:0.68rem; font-weight:700; color:#444; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:1rem; }
+  .form-group { margin-bottom:0.9rem; }
+  label { display:block; font-size:0.72rem; font-weight:600; color:#444; margin-bottom:0.35rem; }
+  input, textarea { background:#1a1a1a; border:1px solid #252525; color:#e0e0e0; font-family:'DM Sans',sans-serif; font-size:0.88rem; border-radius:8px; padding:0.68rem 0.9rem; width:100%; outline:none; transition:border-color 0.2s; }
+  input:focus, textarea:focus { border-color:#F5C518; }
+  input::placeholder, textarea::placeholder { color:#2a2a2a; }
+  textarea { resize:vertical; min-height:65px; line-height:1.5; }
+
+  /* TYPE TABS */
+  .type-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0; }
+  .type-tab { padding:0.6rem 0.3rem; border:1px solid #1e1e1e; border-radius:8px; font-size:0.76rem; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s; background:transparent; color:#444; font-family:'DM Sans',sans-serif; }
+  .type-tab.active { background:rgba(245,197,24,0.08); border-color:rgba(245,197,24,0.4); color:#F5C518; }
+
+  /* CATEGORY FILTER */
+  .cat-row { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .cat-btn { padding:0.35rem 0.8rem; border:1px solid #1e1e1e; border-radius:100px; font-size:0.72rem; font-weight:600; cursor:pointer; background:transparent; color:#444; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .cat-btn.active { background:rgba(255,255,255,0.08); border-color:#444; color:#e0e0e0; }
+
+  /* THEME GRID */
+  .theme-scroll { max-height:340px; overflow-y:auto; padding-right:4px; }
+  .theme-scroll::-webkit-scrollbar { width:4px; }
+  .theme-scroll::-webkit-scrollbar-track { background:#1a1a1a; border-radius:4px; }
+  .theme-scroll::-webkit-scrollbar-thumb { background:#333; border-radius:4px; }
+  .theme-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+  .theme-card {
+    border-radius:10px; padding:0.8rem 0.6rem; cursor:pointer;
+    text-align:center; border:2px solid transparent;
+    transition:all 0.2s; position:relative; overflow:hidden;
+  }
+  .theme-card:hover { transform:translateY(-2px); }
+  .theme-card.selected { border-color:rgba(255,255,255,0.8) !important; transform:scale(1.03); }
+  .theme-card .t-icon { font-size:1.5rem; display:block; margin-bottom:0.25rem; }
+  .theme-card .t-name { font-size:0.62rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; }
+
+  /* GEN BUTTON */
+  .gen-btn { background:#F5C518; color:#000; border:none; padding:1rem; border-radius:10px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; width:100%; transition:all 0.2s; margin-top:0.5rem; }
+  .gen-btn:hover { opacity:0.92; transform:translateY(-1px); box-shadow:0 8px 20px rgba(245,197,24,0.2); }
 
   /* PREVIEW AREA */
-  .preview-panel { display:flex; flex-direction:column; gap:1.5rem; }
-  .qr-preview-wrap {
-    background:#fff;
-    border-radius:16px;
-    padding:1.5rem;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    min-height:320px;
-    position:relative;
-    overflow:hidden;
-  }
-  .qr-preview-wrap.theme-gold { background:linear-gradient(135deg,#1a1a1a,#2a2200); border:3px solid #F5C518; }
-  .qr-preview-wrap.theme-white { background:#ffffff; border:3px solid #F5C518; }
-  .qr-preview-wrap.theme-dark { background:#0A0A0A; border:3px solid #F5C518; }
-  .qr-preview-wrap.theme-gradient { background:linear-gradient(135deg,#667eea,#764ba2); border:none; }
+  .preview-area { }
+  .preview-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+  .preview-lbl { font-size:0.68rem; font-weight:700; color:#444; text-transform:uppercase; letter-spacing:0.12em; }
+  .change-theme-btn { background:transparent; border:1px solid #222; color:#666; padding:0.4rem 0.9rem; border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .change-theme-btn:hover { border-color:#F5C518; color:#F5C518; }
 
-  .qr-top-badge {
-    font-size:0.65rem;
-    font-weight:800;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    padding:0.25rem 0.8rem;
-    border-radius:100px;
-    margin-bottom:0.8rem;
+  /* QR CARDS */
+  .qr-card {
+    border-radius:22px; padding:2rem 1.5rem 1.5rem;
+    display:flex; flex-direction:column; align-items:center;
+    min-height:400px; position:relative; overflow:hidden;
+    transition:all 0.4s ease;
   }
-  .badge-review { background:rgba(245,197,24,0.2); color:#F5C518; border:1px solid rgba(245,197,24,0.4); }
-  .badge-loyalty { background:rgba(102,126,234,0.2); color:#a78bfa; border:1px solid rgba(102,126,234,0.4); }
-
-  .qr-biz-name {
-    font-family:'Syne',sans-serif;
-    font-size:clamp(1.2rem,3vw,1.6rem);
-    font-weight:800;
-    text-align:center;
-    margin-bottom:0.3rem;
-    line-height:1.1;
-  }
-  .qr-message {
-    font-size:0.82rem;
-    text-align:center;
-    margin-bottom:1rem;
-    line-height:1.5;
-    max-width:200px;
-  }
-  .qr-frame {
-    padding:10px;
-    border-radius:12px;
-    display:inline-block;
-    margin-bottom:0.8rem;
-  }
-  .frame-gold { background:#F5C518; }
-  .frame-white { background:#ffffff; }
-  .frame-dark { background:#0A0A0A; }
-  .qr-url-text {
-    font-size:0.6rem;
-    text-align:center;
-    opacity:0.5;
-    margin-bottom:0.5rem;
-    word-break:break-all;
-    max-width:200px;
-  }
-  .qr-powered {
-    font-size:0.6rem;
-    opacity:0.4;
-    text-align:center;
-  }
+  .qr-card-inner { display:flex; flex-direction:column; align-items:center; z-index:2; width:100%; }
+  .qr-badge { font-size:0.6rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; padding:0.22rem 0.75rem; border-radius:100px; margin-bottom:0.7rem; }
+  .qr-deco { font-size:1.8rem; margin-bottom:0.4rem; }
+  .qr-biz-name { font-weight:800; text-align:center; margin-bottom:0.3rem; line-height:1.1; }
+  .qr-msg { font-size:0.8rem; text-align:center; margin-bottom:1rem; line-height:1.55; max-width:210px; }
+  .qr-frame { padding:10px; border-radius:14px; margin-bottom:0.6rem; }
+  .qr-hint { font-size:0.58rem; opacity:0.45; text-align:center; margin-bottom:0.25rem; }
+  .qr-powered { font-size:0.55rem; opacity:0.3; text-align:center; }
   .qr-powered em { font-style:normal; font-weight:700; }
 
-  /* EMPTY STATE */
-  .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:1rem; color:#3A3A3A; padding:2rem; text-align:center; }
-  .empty-state .icon { font-size:3rem; }
-  .empty-state p { font-size:0.85rem; line-height:1.6; }
+  /* BG DECORATIONS */
+  .qr-card .deco-top { position:absolute; top:0; left:0; right:0; text-align:center; font-size:0.8rem; padding:6px 0; opacity:0.15; letter-spacing:6px; overflow:hidden; white-space:nowrap; }
+  .qr-card .deco-bot { position:absolute; bottom:0; left:0; right:0; text-align:center; font-size:0.8rem; padding:6px 0; opacity:0.15; letter-spacing:6px; overflow:hidden; white-space:nowrap; }
+
+  /* ==================== THEMES ==================== */
+
+  /* BARBERSHOP */
+  .th-classic-barber { background:linear-gradient(160deg,#1a0000,#330000,#1a0000); border:2px solid #cc0000; box-shadow:0 0 50px rgba(200,0,0,0.2); }
+  .th-classic-barber .qr-biz-name { color:#fff; font-family:'Bebas Neue',sans-serif; font-size:clamp(1.5rem,4vw,2.2rem); letter-spacing:0.06em; }
+  .th-classic-barber .qr-msg { color:#ff9999; }
+  .th-classic-barber .qr-badge { background:rgba(200,0,0,0.3); color:#ff4444; border:1px solid #cc0000; }
+  .th-classic-barber .qr-frame { background:#cc0000; }
+  .th-classic-barber .deco-top,.th-classic-barber .deco-bot { content:'✂️ 💈 ✂️'; color:#ff4444; }
+
+  .th-sharp-cuts { background:linear-gradient(160deg,#080808,#141414,#080808); border:2px solid #888; box-shadow:0 0 50px rgba(150,150,150,0.1); }
+  .th-sharp-cuts .qr-biz-name { color:#fff; font-family:'Bebas Neue',sans-serif; font-size:clamp(1.5rem,4vw,2.2rem); letter-spacing:0.1em; }
+  .th-sharp-cuts .qr-msg { color:#aaa; }
+  .th-sharp-cuts .qr-badge { background:rgba(150,150,150,0.15); color:#ccc; border:1px solid #555; }
+  .th-sharp-cuts .qr-frame { background:#333; }
+
+  .th-king-fade { background:linear-gradient(160deg,#00001a,#000033,#00001a); border:2px solid #F5C518; box-shadow:0 0 50px rgba(245,197,24,0.15); }
+  .th-king-fade .qr-biz-name { color:#F5C518; font-family:'Playfair Display',serif; font-size:clamp(1.3rem,3.5vw,1.9rem); }
+  .th-king-fade .qr-msg { color:#ffe080; }
+  .th-king-fade .qr-badge { background:rgba(245,197,24,0.15); color:#F5C518; border:1px solid rgba(245,197,24,0.4); }
+  .th-king-fade .qr-frame { background:#F5C518; }
+
+  .th-street-barber { background:linear-gradient(160deg,#0a0a0a,#111,#0a0a0a); border:2px solid #ff6600; box-shadow:0 0 50px rgba(255,102,0,0.15); }
+  .th-street-barber .qr-biz-name { color:#ff6600; font-family:'Permanent Marker',cursive; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-street-barber .qr-msg { color:#ff9944; }
+  .th-street-barber .qr-badge { background:rgba(255,102,0,0.15); color:#ff6600; border:1px solid rgba(255,102,0,0.4); }
+  .th-street-barber .qr-frame { background:#ff6600; }
+
+  /* SALON */
+  .th-cherry-blossom { background:linear-gradient(160deg,#fff0f5,#ffe0ee,#fff0f5); border:2px solid #ff69b4; box-shadow:0 0 50px rgba(255,105,180,0.2); }
+  .th-cherry-blossom .qr-biz-name { color:#880044; font-family:'Playfair Display',serif; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-cherry-blossom .qr-msg { color:#cc5588; }
+  .th-cherry-blossom .qr-badge { background:rgba(255,105,180,0.2); color:#cc0066; border:1px solid #ff69b4; }
+  .th-cherry-blossom .qr-frame { background:#ff69b4; }
+
+  .th-rose-gold { background:linear-gradient(160deg,#1a0505,#2d0a0a,#1a0505); border:2px solid #e8a098; box-shadow:0 0 50px rgba(232,160,152,0.2); }
+  .th-rose-gold .qr-biz-name { color:#e8a098; font-family:'Playfair Display',serif; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-rose-gold .qr-msg { color:#d4807a; }
+  .th-rose-gold .qr-badge { background:rgba(232,160,152,0.15); color:#e8a098; border:1px solid rgba(232,160,152,0.4); }
+  .th-rose-gold .qr-frame { background:#c0706a; }
+
+  .th-glam-studio { background:linear-gradient(160deg,#0d0020,#1a0040,#0d0020); border:2px solid #c084fc; box-shadow:0 0 50px rgba(192,132,252,0.2); }
+  .th-glam-studio .qr-biz-name { color:#fff; font-family:'Playfair Display',serif; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-glam-studio .qr-msg { color:#d8b4fe; }
+  .th-glam-studio .qr-badge { background:rgba(192,132,252,0.15); color:#c084fc; border:1px solid #9333ea; }
+  .th-glam-studio .qr-frame { background:#7c3aed; }
+
+  .th-butterfly { background:linear-gradient(160deg,#001a1a,#001a2d,#001a1a); border:2px solid #22d3ee; box-shadow:0 0 50px rgba(34,211,238,0.15); }
+  .th-butterfly .qr-biz-name { color:#22d3ee; font-family:'Syne',sans-serif; font-size:clamp(1.2rem,3.5vw,1.8rem); font-weight:800; }
+  .th-butterfly .qr-msg { color:#a5f3fc; }
+  .th-butterfly .qr-badge { background:rgba(34,211,238,0.1); color:#22d3ee; border:1px solid rgba(34,211,238,0.3); }
+  .th-butterfly .qr-frame { background:#0891b2; }
+
+  /* SPA */
+  .th-zen-garden { background:linear-gradient(160deg,#f5f5f0,#eeeee8,#f5f5f0); border:2px solid #6b9e78; box-shadow:0 0 50px rgba(107,158,120,0.2); }
+  .th-zen-garden .qr-biz-name { color:#2d4a35; font-family:'Playfair Display',serif; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-zen-garden .qr-msg { color:#4a7a55; }
+  .th-zen-garden .qr-badge { background:rgba(107,158,120,0.2); color:#3a6644; border:1px solid #6b9e78; }
+  .th-zen-garden .qr-frame { background:#4a7a55; }
+
+  .th-ocean-calm { background:linear-gradient(160deg,#001020,#001830,#001020); border:2px solid #38bdf8; box-shadow:0 0 50px rgba(56,189,248,0.15); }
+  .th-ocean-calm .qr-biz-name { color:#fff; font-family:'Syne',sans-serif; font-size:clamp(1.2rem,3.5vw,1.8rem); font-weight:800; }
+  .th-ocean-calm .qr-msg { color:#bae6fd; }
+  .th-ocean-calm .qr-badge { background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); }
+  .th-ocean-calm .qr-frame { background:#0369a1; }
+
+  .th-candlelight { background:linear-gradient(160deg,#1a0e00,#2d1800,#1a0e00); border:2px solid #f59e0b; box-shadow:0 0 50px rgba(245,158,11,0.2); }
+  .th-candlelight .qr-biz-name { color:#fde68a; font-family:'Playfair Display',serif; font-size:clamp(1.2rem,3.5vw,1.8rem); }
+  .th-candlelight .qr-msg { color:#fcd34d; }
+  .th-candlelight .qr-badge { background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.4); }
+  .th-candlelight .qr-frame { background:#d97706; }
+
+  .th-forest { background:linear-gradient(160deg,#020a04,#041208,#020a04); border:2px solid #4ade80; box-shadow:0 0 50px rgba(74,222,128,0.12); }
+  .th-forest .qr-biz-name { color:#4ade80; font-family:'Syne',sans-serif; font-size:clamp(1.2rem,3.5vw,1.8rem); font-weight:800; }
+  .th-forest .qr-msg { color:#86efac; }
+  .th-forest .qr-badge { background:rgba(74,222,128,0.1); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+  .th-forest .qr-frame { background:#16a34a; }
+
+  /* ROCK */
+  .th-electric-red { background:linear-gradient(160deg,#0d0000,#1a0000,#0d0000); border:2px solid #ef4444; box-shadow:0 0 60px rgba(239,68,68,0.25); }
+  .th-electric-red .qr-biz-name { color:#fff; font-family:'Bebas Neue',sans-serif; font-size:clamp(1.5rem,4vw,2.3rem); letter-spacing:0.08em; }
+  .th-electric-red .qr-msg { color:#fca5a5; }
+  .th-electric-red .qr-badge { background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid rgba(239,68,68,0.5); }
+  .th-electric-red .qr-frame { background:#dc2626; }
+
+  .th-neon-nights { background:linear-gradient(160deg,#00001a,#000a1a,#00001a); border:2px solid #3b82f6; box-shadow:0 0 60px rgba(59,130,246,0.2); }
+  .th-neon-nights .qr-biz-name { color:#60a5fa; font-family:'Bebas Neue',sans-serif; font-size:clamp(1.5rem,4vw,2.3rem); letter-spacing:0.08em; }
+  .th-neon-nights .qr-msg { color:#93c5fd; }
+  .th-neon-nights .qr-badge { background:rgba(59,130,246,0.15); color:#3b82f6; border:1px solid rgba(59,130,246,0.4); }
+  .th-neon-nights .qr-frame { background:#1d4ed8; }
+
+  .th-skull-fade { background:linear-gradient(160deg,#050505,#0d0d0d,#050505); border:2px solid #a855f7; box-shadow:0 0 60px rgba(168,85,247,0.2); }
+  .th-skull-fade .qr-biz-name { color:#fff; font-family:'Bebas Neue',sans-serif; font-size:clamp(1.5rem,4vw,2.3rem); letter-spacing:0.08em; }
+  .th-skull-fade .qr-msg { color:#d8b4fe; }
+  .th-skull-fade .qr-badge { background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.4); }
+  .th-skull-fade .qr-frame { background:#7c3aed; }
 
   /* DOWNLOAD BUTTONS */
-  .download-row { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+  .dl-row { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-top:1rem; }
   .dl-btn { padding:0.8rem; border-radius:10px; font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer; text-align:center; transition:all 0.2s; border:none; }
   .dl-print { background:#F5C518; color:#000; }
-  .dl-png { background:transparent; border:1px solid #2E2E2E; color:#E6E6E6; }
-  .dl-print:hover, .dl-png:hover { opacity:0.85; transform:translateY(-1px); }
+  .dl-png { background:transparent; border:1px solid #222; color:#e0e0e0; }
+  .dl-print:hover,.dl-png:hover { opacity:0.85; transform:translateY(-1px); }
 
-  /* BOTH QR CODES */
-  .both-wrap { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-  .mini-qr-card { background:#161616; border:1px solid #252525; border-radius:12px; padding:1rem; text-align:center; }
-  .mini-qr-label { font-size:0.72rem; color:#7A7A7A; font-weight:600; margin-bottom:0.8rem; text-transform:uppercase; letter-spacing:0.08em; }
+  /* BOTH */
+  .both-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .mini-card { background:#131313; border:1px solid #1e1e1e; border-radius:12px; padding:1rem; text-align:center; }
+  .mini-lbl { font-size:0.68rem; color:#444; font-weight:700; margin-bottom:0.8rem; text-transform:uppercase; letter-spacing:0.08em; }
+
+  .empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:380px; color:#222; text-align:center; gap:1rem; background:#0d0d0d; border:1px solid #1a1a1a; border-radius:22px; padding:2rem; }
+  .empty .icon { font-size:3rem; }
+  .empty p { font-size:0.85rem; line-height:1.65; max-width:220px; color:#333; }
 
   @media(max-width:800px){
-    .builder{grid-template-columns:1fr;}
-    .both-wrap{grid-template-columns:1fr;}
+    .layout{grid-template-columns:1fr;}
+    .both-grid{grid-template-columns:1fr;}
   }
-
-  /* PRINT STYLES */
   @media print {
-    body { background:white; padding:0; }
-    nav, .panel:first-child, .download-row, .panel-title, .both-wrap { display:none !important; }
-    .builder { grid-template-columns:1fr; }
-    .qr-preview-wrap { border:2px solid #F5C518 !important; }
+    body{background:white;padding:0;}
+    nav,.ctrl-stack,.dl-row,.preview-header,.both-grid{display:none!important;}
+    .layout{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -138,111 +216,118 @@
 
 <nav>
   <a href="/dashboard" class="logo">Auto<em>reach</em></a>
-  <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+  <a href="/dashboard" class="back">← Dashboard</a>
 </nav>
 
-<div style="max-width:1100px;margin:0 auto;">
+<div style="max-width:1200px;margin:0 auto;">
   <h1>QR Code Designer 🎨</h1>
-  <p class="sub">Design and print your Review QR and Loyalty QR codes. Put them anywhere customers can see them.</p>
+  <p class="sub">15 unique themes. Pick your vibe, customize, and print.</p>
 
-  <div class="builder">
-    <!-- LEFT: CONTROLS -->
-    <div class="panel">
-      <div class="panel-title">Configure Your QR Codes</div>
+  <div class="layout">
 
-      <!-- QR TYPE TABS -->
-      <div class="tab-row">
-        <button class="tab active" onclick="switchTab('review', this)">⭐ Review QR</button>
-        <button class="tab" onclick="switchTab('loyalty', this)">🎟️ Loyalty QR</button>
-        <button class="tab" onclick="switchTab('both', this)">📋 Print Both</button>
+    <!-- LEFT CONTROLS -->
+    <div class="ctrl-stack">
+
+      <div class="ctrl-card">
+        <div class="ctrl-title">QR Type</div>
+        <div class="type-tabs">
+          <button class="type-tab active" onclick="switchTab('review',this)">⭐ Review</button>
+          <button class="type-tab" onclick="switchTab('loyalty',this)">🎟️ Loyalty</button>
+          <button class="type-tab" onclick="switchTab('both',this)">📋 Both</button>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>BUSINESS NAME</label>
-        <input type="text" id="bizNameInput" placeholder="e.g. Fade Kings Barbershop" oninput="updatePreview()">
-      </div>
-
-      <div id="reviewFields">
+      <div class="ctrl-card">
+        <div class="ctrl-title">Your Info</div>
         <div class="form-group">
-          <label>MESSAGE ON REVIEW QR</label>
-          <textarea id="reviewMsg" oninput="updatePreview()">Loved your visit? 
+          <label>BUSINESS NAME</label>
+          <input type="text" id="bizName" placeholder="e.g. Fade Kings Barbershop" oninput="liveUpdate()">
+        </div>
+        <div id="reviewMsgWrap" class="form-group">
+          <label>REVIEW MESSAGE</label>
+          <textarea id="reviewMsg" oninput="liveUpdate()">Loved your visit?
 Drop us a quick ⭐ review!</textarea>
         </div>
-      </div>
-
-      <div id="loyaltyFields" style="display:none">
-        <div class="form-group">
-          <label>MESSAGE ON LOYALTY QR</label>
-          <textarea id="loyaltyMsg" oninput="updatePreview()">Scan after every visit 
+        <div id="loyaltyMsgWrap" class="form-group" style="display:none">
+          <label>LOYALTY MESSAGE</label>
+          <textarea id="loyaltyMsg" oninput="liveUpdate()">Scan after every visit
 to collect your stamp! 🎟️</textarea>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label>THEME</label>
-        <div class="color-row" id="themeRow">
-          <div class="color-opt selected" style="background:#ffffff;border:2px solid #ddd;" data-theme="white" onclick="selectTheme('white',this)" title="White"></div>
-          <div class="color-opt" style="background:linear-gradient(135deg,#1a1a1a,#2a2200);" data-theme="gold" onclick="selectTheme('gold',this)" title="Dark Gold"></div>
-          <div class="color-opt" style="background:#0A0A0A;" data-theme="dark" onclick="selectTheme('dark',this)" title="Black"></div>
-          <div class="color-opt" style="background:linear-gradient(135deg,#667eea,#764ba2);" data-theme="gradient" onclick="selectTheme('gradient',this)" title="Purple"></div>
+        <div class="form-group">
+          <label>BUSINESS ID</label>
+          <input type="text" id="bizId" placeholder="Auto-filled if logged in">
         </div>
       </div>
 
-      <div class="form-group">
-        <label>YOUR BUSINESS ID (auto-filled after login)</label>
-        <input type="text" id="bizIdInput" placeholder="Paste your business ID here" oninput="updatePreview()">
+      <div class="ctrl-card">
+        <div class="ctrl-title">Choose Theme</div>
+        <div class="cat-row">
+          <button class="cat-btn active" onclick="filterCat('all',this)">All</button>
+          <button class="cat-btn" onclick="filterCat('barbershop',this)">💈 Barber</button>
+          <button class="cat-btn" onclick="filterCat('salon',this)">🌸 Salon</button>
+          <button class="cat-btn" onclick="filterCat('spa',this)">🌿 Spa</button>
+          <button class="cat-btn" onclick="filterCat('rock',this)">🎸 Rock</button>
+        </div>
+        <div class="theme-scroll">
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
       </div>
 
-      <button class="generate-btn" onclick="generateQRs()">✦ Generate QR Codes</button>
+      <button class="gen-btn" onclick="generate()">✦ Generate QR Code</button>
     </div>
 
-    <!-- RIGHT: PREVIEW -->
-    <div class="preview-panel">
+    <!-- RIGHT PREVIEW -->
+    <div class="preview-area">
+      <div class="preview-header">
+        <div class="preview-lbl">Live Preview</div>
+        <button class="change-theme-btn" onclick="randomTheme()">🎲 Random Theme</button>
+      </div>
 
-      <!-- SINGLE QR PREVIEW -->
-      <div id="singlePreview">
-        <div class="panel-title" style="margin-bottom:1rem;">Preview</div>
-        <div class="qr-preview-wrap theme-white" id="qrPreviewCard">
-          <div class="empty-state" id="emptyState">
-            <div class="icon">🎨</div>
-            <p>Fill in your business name and click Generate to see your QR code design</p>
-          </div>
-          <div id="qrDesignContent" style="display:none;flex-direction:column;align-items:center;width:100%;">
-            <div class="qr-top-badge badge-review" id="qrBadge">Review QR</div>
-            <div class="qr-biz-name" id="qrBizNameDisplay"></div>
-            <div class="qr-message" id="qrMessageDisplay"></div>
-            <div class="qr-frame frame-gold" id="qrFrame">
-              <div id="qrCodeDisplay"></div>
+      <div class="empty" id="emptyState">
+        <div class="icon">🎨</div>
+        <p>Enter your business name, pick a theme, and hit Generate</p>
+      </div>
+
+      <!-- SINGLE QR -->
+      <div id="singleWrap" style="display:none;">
+        <div class="qr-card" id="qrCard">
+          <div class="deco-top" id="decoTop"></div>
+          <div class="deco-bot" id="decoBot"></div>
+          <div class="qr-card-inner">
+            <div class="qr-badge" id="qrBadge">⭐ Review QR</div>
+            <div class="qr-deco" id="qrDeco">💈</div>
+            <div class="qr-biz-name" id="qrBizDisplay">Business Name</div>
+            <div class="qr-msg" id="qrMsgDisplay">Your message here</div>
+            <div class="qr-frame" id="qrFrame">
+              <div id="qrCodeEl"></div>
             </div>
-            <div class="qr-url-text" id="qrUrlDisplay"></div>
+            <div class="qr-hint">📱 Point your camera here to scan</div>
             <div class="qr-powered">⚡ Powered by <em>Autoreach</em></div>
           </div>
         </div>
-
-        <div class="download-row" style="margin-top:1rem;" id="downloadRow">
-          <button class="dl-btn dl-print" onclick="printQR()">🖨️ Print</button>
+        <div class="dl-row">
+          <button class="dl-btn dl-print" onclick="window.print()">🖨️ Print</button>
           <button class="dl-btn dl-png" onclick="downloadPNG()">⬇️ Download PNG</button>
         </div>
       </div>
 
-      <!-- BOTH QR PREVIEW -->
-      <div id="bothPreview" style="display:none;">
-        <div class="panel-title" style="margin-bottom:1rem;">Both QR Codes</div>
-        <div class="both-wrap">
-          <div class="mini-qr-card">
-            <div class="mini-qr-label">⭐ Review QR</div>
-            <div id="miniReviewQR"></div>
-            <div style="font-size:0.7rem;color:#7A7A7A;margin-top:0.5rem;">Scan to rate your visit</div>
+      <!-- BOTH QRS -->
+      <div id="bothWrap" style="display:none;">
+        <div class="both-grid">
+          <div class="mini-card">
+            <div class="mini-lbl">⭐ Review QR</div>
+            <div id="miniReview" style="display:flex;justify-content:center;"></div>
+            <p style="font-size:0.7rem;color:#444;margin-top:0.6rem;">Rate your experience</p>
           </div>
-          <div class="mini-qr-card">
-            <div class="mini-qr-label">🎟️ Loyalty QR</div>
-            <div id="miniLoyaltyQR"></div>
-            <div style="font-size:0.7rem;color:#7A7A7A;margin-top:0.5rem;">Scan to collect stamps</div>
+          <div class="mini-card">
+            <div class="mini-lbl">🎟️ Loyalty QR</div>
+            <div id="miniLoyalty" style="display:flex;justify-content:center;"></div>
+            <p style="font-size:0.7rem;color:#444;margin-top:0.6rem;">Collect your stamp</p>
           </div>
         </div>
-        <div class="download-row" style="margin-top:1rem;">
-          <button class="dl-btn dl-print" onclick="printBoth()">🖨️ Print Both</button>
-          <button class="dl-btn dl-png" onclick="downloadBothPNG()">⬇️ Download Both</button>
+        <div class="dl-row">
+          <button class="dl-btn dl-print" onclick="window.print()">🖨️ Print Both</button>
+          <button class="dl-btn dl-png" onclick="downloadBoth()">⬇️ Download Both</button>
         </div>
       </div>
 
@@ -251,145 +336,155 @@ to collect your stamp! 🎟️</textarea>
 </div>
 
 <script>
-  let currentTab = 'review';
-  let currentTheme = 'white';
-  let qrGenerated = false;
+  const THEMES = [
+    { id:'classic-barber', cat:'barbershop', name:'Classic Barber', icon:'💈', deco:'✂️ 💈 ✂️ 💈', badge:'💈 Review', loyaltyBadge:'💈 Loyalty', bg:'#1a0000' },
+    { id:'sharp-cuts', cat:'barbershop', name:'Sharp Cuts', icon:'✂️', deco:'✂️ ⚡ ✂️ ⚡', badge:'✂️ Review', loyaltyBadge:'✂️ Loyalty', bg:'#080808' },
+    { id:'king-fade', cat:'barbershop', name:'King Fade', icon:'👑', deco:'👑 ✨ 👑 ✨', badge:'👑 Review', loyaltyBadge:'👑 Loyalty', bg:'#00001a' },
+    { id:'street-barber', cat:'barbershop', name:'Street Barber', icon:'🔥', deco:'🔥 ✂️ 🔥 ✂️', badge:'🔥 Review', loyaltyBadge:'🔥 Loyalty', bg:'#0a0a0a' },
+    { id:'cherry-blossom', cat:'salon', name:'Cherry Blossom', icon:'🌸', deco:'🌸 🌺 🌸 🌺', badge:'🌸 Review', loyaltyBadge:'🌸 Loyalty', bg:'#fff0f5' },
+    { id:'rose-gold', cat:'salon', name:'Rose Gold', icon:'🌹', deco:'🌹 ✨ 🌹 ✨', badge:'🌹 Review', loyaltyBadge:'🌹 Loyalty', bg:'#1a0505' },
+    { id:'glam-studio', cat:'salon', name:'Glam Studio', icon:'💜', deco:'💜 💅 💜 💅', badge:'💜 Review', loyaltyBadge:'💜 Loyalty', bg:'#0d0020' },
+    { id:'butterfly', cat:'salon', name:'Butterfly', icon:'🦋', deco:'🦋 ✨ 🦋 ✨', badge:'🦋 Review', loyaltyBadge:'🦋 Loyalty', bg:'#001a1a' },
+    { id:'zen-garden', cat:'spa', name:'Zen Garden', icon:'🌿', deco:'🌿 🍃 🌿 🍃', badge:'🌿 Review', loyaltyBadge:'🌿 Loyalty', bg:'#f5f5f0' },
+    { id:'ocean-calm', cat:'spa', name:'Ocean Calm', icon:'🌊', deco:'🌊 💧 🌊 💧', badge:'🌊 Review', loyaltyBadge:'🌊 Loyalty', bg:'#001020' },
+    { id:'candlelight', cat:'spa', name:'Candlelight', icon:'🕯️', deco:'🕯️ ✨ 🕯️ ✨', badge:'🕯️ Review', loyaltyBadge:'🕯️ Loyalty', bg:'#1a0e00' },
+    { id:'forest', cat:'spa', name:'Forest', icon:'🌲', deco:'🌲 🍃 🌲 🍃', badge:'🌲 Review', loyaltyBadge:'🌲 Loyalty', bg:'#020a04' },
+    { id:'electric-red', cat:'rock', name:'Electric Red', icon:'🎸', deco:'🎸 🔥 🎸 🔥', badge:'🎸 Review', loyaltyBadge:'🎸 Loyalty', bg:'#0d0000' },
+    { id:'neon-nights', cat:'rock', name:'Neon Nights', icon:'⚡', deco:'⚡ 🎵 ⚡ 🎵', badge:'⚡ Review', loyaltyBadge:'⚡ Loyalty', bg:'#00001a' },
+    { id:'skull-fade', cat:'rock', name:'Skull & Fade', icon:'💀', deco:'💀 ✂️ 💀 ✂️', badge:'💀 Review', loyaltyBadge:'💀 Loyalty', bg:'#050505' },
+  ];
 
-  // Auto-fill business ID from localStorage
+  let currentTab = 'review';
+  let currentTheme = THEMES[0];
+  let generated = false;
+
+  // Auto fill from localStorage
   window.addEventListener('load', () => {
     const biz = localStorage.getItem('ar_business');
     if (biz) {
-      const data = JSON.parse(biz);
-      document.getElementById('bizIdInput').value = data.id || '';
-      document.getElementById('bizNameInput').value = data.name || '';
-      updatePreview();
+      const d = JSON.parse(biz);
+      document.getElementById('bizId').value = d.id || '';
+      document.getElementById('bizName').value = d.name || '';
     }
+    renderThemes('all');
+    selectTheme(THEMES[0]);
   });
+
+  function renderThemes(cat) {
+    const grid = document.getElementById('themeGrid');
+    const filtered = cat === 'all' ? THEMES : THEMES.filter(t => t.cat === cat);
+    grid.innerHTML = filtered.map(t => `
+      <div class="theme-card th-${t.id} ${currentTheme.id === t.id ? 'selected' : ''}"
+           onclick="selectTheme(THEMES.find(x=>x.id==='${t.id}'))">
+        <span class="t-icon">${t.icon}</span>
+        <span class="t-name">${t.name}</span>
+      </div>
+    `).join('');
+  }
+
+  function filterCat(cat, el) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderThemes(cat);
+  }
+
+  function selectTheme(theme) {
+    currentTheme = theme;
+    renderThemes(document.querySelector('.cat-btn.active')?.textContent.includes('All') ? 'all' :
+      ['barbershop','salon','spa','rock'].find(c => document.querySelector('.cat-btn.active')?.textContent.toLowerCase().includes(c)) || 'all');
+    if (generated) applyThemeToCard();
+  }
+
+  function randomTheme() {
+    const t = THEMES[Math.floor(Math.random() * THEMES.length)];
+    selectTheme(t);
+    if (generated) applyThemeToCard();
+  }
 
   function switchTab(tab, el) {
     currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('reviewFields').style.display = tab === 'loyalty' ? 'none' : 'block';
-    document.getElementById('loyaltyFields').style.display = tab === 'loyalty' ? 'block' : 'none';
-    document.getElementById('singlePreview').style.display = tab === 'both' ? 'none' : 'block';
-    document.getElementById('bothPreview').style.display = tab === 'both' ? 'block' : 'none';
-    if (qrGenerated) generateQRs();
+    document.getElementById('reviewMsgWrap').style.display = tab === 'loyalty' ? 'none' : 'block';
+    document.getElementById('loyaltyMsgWrap').style.display = tab === 'loyalty' ? 'block' : 'none';
   }
 
-  function selectTheme(theme, el) {
-    currentTheme = theme;
-    document.querySelectorAll('.color-opt').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    updatePreview();
+  function liveUpdate() {
+    if (generated) applyThemeToCard();
   }
 
-  function updatePreview() {
-    const card = document.getElementById('qrPreviewCard');
-    card.className = 'qr-preview-wrap theme-' + currentTheme;
-
-    const bizName = document.getElementById('bizNameInput').value;
-    const isDark = currentTheme === 'dark' || currentTheme === 'gold' || currentTheme === 'gradient';
-
-    document.getElementById('qrBizNameDisplay').style.color = isDark ? '#ffffff' : '#111111';
-    document.getElementById('qrMessageDisplay').style.color = isDark ? 'rgba(255,255,255,0.7)' : '#666666';
-    document.getElementById('qrUrlDisplay').style.color = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
-    document.getElementById('qrPowered') && (document.getElementById('qrPowered').style.color = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)');
-
-    const frame = document.getElementById('qrFrame');
-    frame.className = 'qr-frame ' + (isDark ? 'frame-gold' : 'frame-gold');
-  }
-
-  function generateQRs() {
-    const bizName = document.getElementById('bizNameInput').value.trim();
-    const bizId = document.getElementById('bizIdInput').value.trim();
-
-    if (!bizName) {
-      alert('Please enter your business name!');
-      return;
-    }
-
-    qrGenerated = true;
-    const baseUrl = window.location.origin;
-    const reviewUrl = `${baseUrl}/review?b=${bizId || 'YOUR_ID'}`;
-    const loyaltyUrl = `${baseUrl}/loyalty?b=${bizId || 'YOUR_ID'}`;
-
-    if (currentTab === 'both') {
-      generateMiniQR('miniReviewQR', reviewUrl);
-      generateMiniQR('miniLoyaltyQR', loyaltyUrl);
-      return;
-    }
-
+  function applyThemeToCard() {
+    const bizName = document.getElementById('bizName').value || 'Your Business';
     const isLoyalty = currentTab === 'loyalty';
-    const url = isLoyalty ? loyaltyUrl : reviewUrl;
     const msg = isLoyalty
       ? document.getElementById('loyaltyMsg').value
       : document.getElementById('reviewMsg').value;
 
-    const badge = document.getElementById('qrBadge');
-    badge.className = 'qr-top-badge ' + (isLoyalty ? 'badge-loyalty' : 'badge-review');
-    badge.textContent = isLoyalty ? '🎟️ Loyalty QR' : '⭐ Review QR';
+    const card = document.getElementById('qrCard');
+    card.className = 'qr-card th-' + currentTheme.id;
+    document.getElementById('qrBadge').textContent = isLoyalty ? currentTheme.loyaltyBadge : currentTheme.badge;
+    document.getElementById('qrDeco').textContent = currentTheme.icon;
+    document.getElementById('qrBizDisplay').textContent = bizName;
+    document.getElementById('qrMsgDisplay').textContent = msg;
+    document.getElementById('decoTop').textContent = currentTheme.deco;
+    document.getElementById('decoBot').textContent = currentTheme.deco;
+  }
 
-    document.getElementById('qrBizNameDisplay').textContent = bizName;
-    document.getElementById('qrMessageDisplay').textContent = msg;
-    document.getElementById('qrUrlDisplay').textContent = url;
+  function generate() {
+    const bizName = document.getElementById('bizName').value.trim();
+    const bizId = document.getElementById('bizId').value.trim();
+    if (!bizName) { alert('Please enter your business name!'); return; }
 
-    document.getElementById('qrCodeDisplay').innerHTML = '';
-    new QRCode(document.getElementById('qrCodeDisplay'), {
-      text: url,
-      width: 160,
-      height: 160,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
+    generated = true;
+    const base = window.location.origin;
+    const reviewUrl = `${base}/review?b=${bizId || 'demo'}`;
+    const loyaltyUrl = `${base}/loyalty?b=${bizId || 'demo'}`;
 
     document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('qrDesignContent').style.display = 'flex';
-    updatePreview();
+
+    if (currentTab === 'both') {
+      document.getElementById('singleWrap').style.display = 'none';
+      document.getElementById('bothWrap').style.display = 'block';
+      makeQR('miniReview', reviewUrl, 130);
+      makeQR('miniLoyalty', loyaltyUrl, 130);
+      return;
+    }
+
+    document.getElementById('singleWrap').style.display = 'block';
+    document.getElementById('bothWrap').style.display = 'none';
+
+    const url = currentTab === 'loyalty' ? loyaltyUrl : reviewUrl;
+    applyThemeToCard();
+    makeQR('qrCodeEl', url, 160);
   }
 
-  function generateMiniQR(containerId, url) {
-    document.getElementById(containerId).innerHTML = '';
-    new QRCode(document.getElementById(containerId), {
-      text: url,
-      width: 120,
-      height: 120,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
+  function makeQR(id, url, size) {
+    document.getElementById(id).innerHTML = '';
+    new QRCode(document.getElementById(id), {
+      text: url, width: size, height: size,
+      colorDark: '#000000', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.H
     });
-  }
-
-  function printQR() {
-    window.print();
-  }
-
-  function printBoth() {
-    window.print();
   }
 
   function downloadPNG() {
-    const canvas = document.querySelector('#qrCodeDisplay canvas');
-    if (!canvas) { alert('Please generate your QR code first!'); return; }
-    const bizName = document.getElementById('bizNameInput').value || 'autoreach';
-    const link = document.createElement('a');
-    link.download = bizName.replace(/\s+/g,'-').toLowerCase() + '-' + currentTab + '-qr.png';
-    link.href = canvas.toDataURL();
-    link.click();
+    const canvas = document.querySelector('#qrCodeEl canvas');
+    if (!canvas) { alert('Generate first!'); return; }
+    const name = document.getElementById('bizName').value || 'qr';
+    const a = document.createElement('a');
+    a.download = name.replace(/\s+/g,'-').toLowerCase() + '-' + currentTab + '-qr.png';
+    a.href = canvas.toDataURL();
+    a.click();
   }
 
-  function downloadBothPNG() {
-    ['miniReviewQR','miniLoyaltyQR'].forEach((id, i) => {
-      const canvas = document.querySelector('#' + id + ' canvas');
-      if (canvas) {
-        setTimeout(() => {
-          const link = document.createElement('a');
-          link.download = (i === 0 ? 'review' : 'loyalty') + '-qr.png';
-          link.href = canvas.toDataURL();
-          link.click();
-        }, i * 300);
-      }
+  function downloadBoth() {
+    ['miniReview','miniLoyalty'].forEach((id,i) => {
+      const c = document.querySelector('#'+id+' canvas');
+      if (c) setTimeout(() => {
+        const a = document.createElement('a');
+        a.download = (i===0?'review':'loyalty')+'-qr.png';
+        a.href = c.toDataURL(); a.click();
+      }, i*400);
     });
   }
 </script>
